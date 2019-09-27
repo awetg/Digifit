@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">Digifit</string>
-    <string name="tab_text_1">Tab 1</string>
-    <string name="tab_text_2">Tab 2</string>
+    <string name="tab_text_1">StepCounter</string>
+    <string name="tab_text_2">Tracker</string>
+    <string name="tab_text_3">Calories</string>
+    <string name="tab_text_4">Heart Monitor</string>
 </resources>
