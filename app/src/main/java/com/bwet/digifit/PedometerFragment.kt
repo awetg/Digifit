@@ -1,20 +1,24 @@
 package com.bwet.digifit
 
+
 import android.animation.ObjectAnimator
 import android.content.Context
-import android.content.DialogInterface
 import android.content.pm.PackageManager
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.SystemClock
+import androidx.fragment.app.Fragment
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.view.animation.DecelerateInterpolator
 import androidx.appcompat.app.AlertDialog
 import com.bwet.digifit.Utils.PERMISSION_REQUEST_CODE_ACTIVITY_RECOGNITION
-import kotlinx.android.synthetic.main.activity_pedometer.*
+import kotlinx.android.synthetic.main.fragment_pedometer.*
+import kotlinx.android.synthetic.main.fragment_pedometer.view.*
 import kotlin.math.sqrt
 
 // this var is temporary, will be replaced with app setting later
@@ -22,7 +26,7 @@ import kotlin.math.sqrt
 // only needed if STEP_DETECTOR sensor is not present on phone
 internal var DISABLE_ACCELEROMETER_ON_BACKGROUND = true
 
-class PedometerActivity : AppCompatActivity(), SensorEventListener {
+class PedometerFragment : Fragment(), SensorEventListener {
 
     private lateinit var sensorManager: SensorManager
     private lateinit var sensor: Sensor
@@ -47,12 +51,20 @@ class PedometerActivity : AppCompatActivity(), SensorEventListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_pedometer)
-        step_count_txt.text = steps.toString()
+        arguments?.let {}
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        // Inflate the layout for this fragment
+        val view = inflater.inflate(R.layout.fragment_pedometer, container, false)
+        view.step_count_txt.text = steps.toString()
 
         checkPermission()
 
-        sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        sensorManager = activity?.getSystemService(Context.SENSOR_SERVICE) as SensorManager
 
         // use STEP_DETECTOR if present or use LINEAR_ACCELERATION as fallback
         // NOTE: using accelerometer for long time drains battery fast
@@ -65,6 +77,16 @@ class PedometerActivity : AppCompatActivity(), SensorEventListener {
 
         // SENSOR_DELAY_FASTEST fastest sampling 0ms according to android Docs
         sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_FASTEST)
+
+        return view
+    }
+
+    companion object {
+        @JvmStatic
+        fun newInstance() =
+            PedometerFragment().apply {
+                arguments = Bundle().apply {}
+            }
     }
 
     // do nothing on accuracy changed
@@ -144,9 +166,10 @@ class PedometerActivity : AppCompatActivity(), SensorEventListener {
     }
 
     private fun checkPermission() {
-        if (checkSelfPermission( android.Manifest.permission.ACTIVITY_RECOGNITION) != PackageManager.PERMISSION_GRANTED) {
+        if (activity?.checkSelfPermission( android.Manifest.permission.ACTIVITY_RECOGNITION) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(arrayOf(android.Manifest.permission.ACTIVITY_RECOGNITION),
-                PERMISSION_REQUEST_CODE_ACTIVITY_RECOGNITION)
+                PERMISSION_REQUEST_CODE_ACTIVITY_RECOGNITION
+            )
         }
     }
 
@@ -160,10 +183,13 @@ class PedometerActivity : AppCompatActivity(), SensorEventListener {
                 if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
                     //permission granted
                 } else {
-                    AlertDialog.Builder(this)
+                    AlertDialog.Builder(context!!)
                         .setMessage(R.string.activity_recognition)
                         .setPositiveButton("OK") { _, _ ->  checkPermission()}
-                        .setNegativeButton("No") { _, _ -> finish()}
+                        .setNegativeButton("No") { _, _ ->
+                            fragmentManager?.beginTransaction()?.remove(this)?.commit()
+                            activity?.finish()
+                        }
                         .setCancelable(false)
                         .show()
                 }
