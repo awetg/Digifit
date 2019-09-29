@@ -4,4 +4,8 @@
     <string name="tab_text_2">Tracker</string>
     <string name="tab_text_3">Calories</string>
     <string name="tab_text_4">Heart Monitor</string>
+
+    <!--   step counter strings -->
+    <string name="step_count_initial_value">0</string>
+    <string name="activity_recognition">This permission is required to count your steps. Please grant permission.</string>
 </resources>
