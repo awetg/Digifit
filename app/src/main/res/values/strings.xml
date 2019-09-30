@@ -1,14 +1,5 @@
 <resources>
     <string name="app_name">Digifit</string>
-    <string name="pedometer">Pedometer</string>
-    <string name="tab_text_2">Tracker</string>
-    <string name="tab_text_3">Calories</string>
-    <string name="tab_text_4">Heart Monitor</string>
-
-    <!--   step counter strings -->
-    <string name="step_count_initial_value">0</string>
-    <string name="activity_recognition">This permission is required to count your steps. Please grant permission.</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="tab_text_1">Tab 1</string>
+    <string name="tab_text_2">Tab 2</string>
 </resources>
