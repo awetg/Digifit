@@ -11,24 +11,24 @@ import android.hardware.SensorManager
 import android.os.Bundle
 import android.os.SystemClock
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.DecelerateInterpolator
 import androidx.appcompat.app.AlertDialog
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.bwet.digifit.R
-import com.bwet.digifit.Utils.DEBUG_TAG
-import com.bwet.digifit.Utils.PERMISSION_REQUEST_CODE_ACTIVITY_RECOGNITION
+import com.bwet.digifit.utils.DEBUG_TAG
+import com.bwet.digifit.utils.PERMISSION_REQUEST_CODE_ACTIVITY_RECOGNITION
 import com.bwet.digifit.model.Step
+import com.bwet.digifit.utils.CalorieBurnedCalculator
 import com.bwet.digifit.viewModel.StepViewModel
 import kotlinx.android.synthetic.main.fragment_pedometer.*
 import kotlinx.android.synthetic.main.fragment_pedometer.view.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import java.text.DecimalFormat
 import kotlin.math.sqrt
 
 // this var is temporary, will be replaced with app setting later
@@ -139,6 +139,8 @@ class PedometerFragment : BaseFragment(), SensorEventListener {
                 // using GlobalScope instead this fragment scope so that coroutine is not interrupted prematurely
                 // if the fragment is destroyed
                 GlobalScope.launch(Dispatchers.IO) {stepViewModel.addStep(Step(currentEventTimeStamp))}
+
+                calorie_txt.text = DecimalFormat("#.##").format(CalorieBurnedCalculator.calculateForSteps(steps)) + " cal"
             }
 
 
