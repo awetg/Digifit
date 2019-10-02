@@ -21,7 +21,6 @@
         android:layout_height="wrap_content"
         android:id="@+id/user_name"
         android:text="@string/userName"
-        android:fontFamily="sans-serif-condensed-light"
         android:textSize="20sp"
         android:textColor="#FFFFFF"
         android:layout_marginTop="185dp"
