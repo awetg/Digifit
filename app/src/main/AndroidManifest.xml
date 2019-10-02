@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.bwet.digifit">
 
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -26,6 +27,10 @@
 <!--    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />-->
 <!--    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />-->
     <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION"/>
+
+
+
+    
 
     <!-- use feature -->
 <!--    <uses-feature android:name="android.hardware.sensor.stepcounter" android:required="true"/>-->
