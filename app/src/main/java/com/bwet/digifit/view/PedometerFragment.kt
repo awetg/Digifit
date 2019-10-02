@@ -1,4 +1,4 @@
-package com.bwet.digifit
+package com.bwet.digifit.view
 
 
 import android.animation.ObjectAnimator
@@ -10,15 +10,25 @@ import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.os.Bundle
 import android.os.SystemClock
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.DecelerateInterpolator
 import androidx.appcompat.app.AlertDialog
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
+import com.bwet.digifit.R
+import com.bwet.digifit.Utils.DEBUG_TAG
 import com.bwet.digifit.Utils.PERMISSION_REQUEST_CODE_ACTIVITY_RECOGNITION
+import com.bwet.digifit.model.Step
+import com.bwet.digifit.viewModel.StepViewModel
 import kotlinx.android.synthetic.main.fragment_pedometer.*
 import kotlinx.android.synthetic.main.fragment_pedometer.view.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import kotlin.math.sqrt
 
 // this var is temporary, will be replaced with app setting later
@@ -26,7 +36,9 @@ import kotlin.math.sqrt
 // only needed if STEP_DETECTOR sensor is not present on phone
 internal var DISABLE_ACCELEROMETER_ON_BACKGROUND = true
 
-class PedometerFragment : Fragment(), SensorEventListener {
+class PedometerFragment : BaseFragment(), SensorEventListener {
+
+    private lateinit var stepViewModel: StepViewModel
 
     private lateinit var sensorManager: SensorManager
     private lateinit var sensor: Sensor
@@ -60,9 +72,17 @@ class PedometerFragment : Fragment(), SensorEventListener {
     ): View? {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_pedometer, container, false)
-        view.step_count_txt.text = steps.toString()
 
         checkPermission()
+
+        stepViewModel = ViewModelProviders.of(this).get(StepViewModel::class.java)
+
+        // get total saved steps count from database
+        launch {
+            steps = stepViewModel.getTotalSteps()
+            view.step_count_txt.text = steps.toString()
+            animateProgressBar(steps)
+        }
 
         sensorManager = activity?.getSystemService(Context.SENSOR_SERVICE) as SensorManager
 
@@ -77,6 +97,15 @@ class PedometerFragment : Fragment(), SensorEventListener {
 
         // SENSOR_DELAY_FASTEST fastest sampling 0ms according to android Docs
         sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_FASTEST)
+
+        view.test_btn.setOnClickListener {
+            val startTime = System.currentTimeMillis() - 7200 * 1000
+            val endTime = System.currentTimeMillis()
+            launch {
+                stepViewModel.getStepCountByInterval(startTime, endTime, 3600, "%H")
+                    .forEach { Log.d(DEBUG_TAG, "count ${it.count} intervalFormat ${it.intervalFormat}") }
+            }
+        }
 
         return view
     }
@@ -95,7 +124,9 @@ class PedometerFragment : Fragment(), SensorEventListener {
     // step detect on
     override fun onSensorChanged(event: SensorEvent?) {
 
-        currentEventTimeStamp = System.currentTimeMillis() + (event?.timestamp ?: System.nanoTime() - SystemClock.elapsedRealtimeNanos()) / 1000000L
+        val eventMillsDiff = (SystemClock.elapsedRealtimeNanos() - (event?.timestamp ?: SystemClock.elapsedRealtimeNanos())) / 1000000L
+
+        currentEventTimeStamp = System.currentTimeMillis() + eventMillsDiff
 
         if (event?.sensor?.type == Sensor.TYPE_STEP_DETECTOR) {
 
@@ -105,6 +136,9 @@ class PedometerFragment : Fragment(), SensorEventListener {
                 steps++
                 step_count_txt.text = steps.toString()
                 animateProgressBar(steps)
+                // using GlobalScope instead this fragment scope so that coroutine is not interrupted prematurely
+                // if the fragment is destroyed
+                GlobalScope.launch(Dispatchers.IO) {stepViewModel.addStep(Step(currentEventTimeStamp))}
             }
 
 
@@ -120,7 +154,7 @@ class PedometerFragment : Fragment(), SensorEventListener {
 
                 if (peakDetected(accVectorSum, lastAccVectorSum)) {
 
-                    // if peak detected within time interval threshold and
+                    // if peak detected within time intervalFormat threshold and
                     // the difference between peak and valley is greater than acceleration threshold, detect step
                     if (currentEventTimeStamp - lastPeakTimeStamp >= timeIntervalThreshold) {
 
