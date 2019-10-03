@@ -1,4 +1,4 @@
-package com.bwet.digifit.Utils
+package com.bwet.digifit.utils
 
 const val DEBUG_TAG = "DBG"
 
