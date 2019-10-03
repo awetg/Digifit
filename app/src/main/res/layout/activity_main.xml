@@ -7,75 +7,92 @@
         android:background="@color/colorPrimary"
         tools:context=".view.MainActivity">
 
-    <ImageView
-        android:id="@+id/user_image"
-        android:layout_width="150dp"
-        android:layout_height="150dp"
-        android:layout_gravity="center_horizontal"
-        android:contentDescription="@string/profilePicDescription"
-        android:layout_marginTop="20dp"
-        android:background="@drawable/image_border_circle"
-        app:srcCompat="@drawable/ic_account_circle_black_24dp" />
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/user_name"
-        android:text="@string/userName"
-        android:textSize="20sp"
-        android:textColor="#FFFFFF"
-        android:layout_marginTop="185dp"
-        android:textStyle="bold"
-        android:layout_gravity="center_horizontal"/>
-
-    <androidx.constraintlayout.widget.ConstraintLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:layout_marginTop="200dp">
+        android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/setting_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:padding="8dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/ic_settings_white_24dp" />
+
+            <ImageView
+                android:id="@+id/user_image"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/image_border_circle"
+                android:contentDescription="@string/profilePicDescription"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/ic_account_circle_black_24dp" />
+
+            <TextView
+                android:id="@+id/user_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="16dp"
+                android:text="@string/userName"
+                android:textColor="@color/textColorProfilePage"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/user_image" />
 
         <ImageView
+            android:id="@+id/total_step_count_logo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:alpha="0.5"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/distance_travelled_logo"
             android:background="@drawable/ic_directions_walk_black_24dp"
-            android:backgroundTint="@color/background"
-            android:id="@+id/total_step_count_logo"/>
+            android:backgroundTint="@color/textColorProfilePage"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/distance_travelled_logo"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/user_name" />
 
         <TextView
+            android:id="@+id/step_count"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
             android:layout_marginLeft="20dp"
-            app:layout_constraintStart_toStartOf="parent"
-            android:textColor="@color/background"
-            app:layout_constraintTop_toBottomOf="@id/total_step_count_logo"
-            app:layout_constraintEnd_toStartOf="@id/total_distance_travelled"
+            android:layout_marginTop="10dp"
             android:text="@string/stepsCount"
-            android:id="@+id/step_count"/>
+            android:textColor="@color/textColorProfilePage"
+            app:layout_constraintEnd_toStartOf="@id/total_distance_travelled"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/total_step_count_logo" />
 
         <ImageView
+            android:id="@+id/distance_travelled_logo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:alpha="0.5"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toEndOf="@id/total_step_count_logo"
-            app:layout_constraintEnd_toStartOf="@id/calories_burned_logo"
             android:background="@drawable/ic_gesture_black_24dp"
-            android:backgroundTint="@color/background"
-            android:id="@+id/distance_travelled_logo"/>
+            android:backgroundTint="@color/textColorProfilePage"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/calories_burned_logo"
+            app:layout_constraintStart_toEndOf="@id/total_step_count_logo"
+            app:layout_constraintTop_toBottomOf="@id/user_name" />
 
         <TextView
             android:id="@+id/total_distance_travelled"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
             android:layout_marginLeft="20dp"
+            android:layout_marginTop="10dp"
             android:text="@string/distanceTravelled"
-            android:textColor="@color/background"
+            android:textColor="@color/textColorProfilePage"
             app:layout_constraintEnd_toStartOf="@id/total_calories_burned"
             app:layout_constraintStart_toEndOf="@id/step_count"
             app:layout_constraintTop_toBottomOf="@id/distance_travelled_logo" />
@@ -86,11 +103,11 @@
             android:layout_height="wrap_content"
             android:alpha="0.5"
             android:background="@drawable/ic_whatshot_black_24dp"
-            android:backgroundTint="@color/background"
-            app:layout_constraintTop_toTopOf="parent"
+            android:backgroundTint="@color/textColorProfilePage"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/distance_travelled_logo" />
+            app:layout_constraintStart_toEndOf="@id/distance_travelled_logo"
+            app:layout_constraintTop_toBottomOf="@id/user_name" />
 
         <TextView
             android:id="@+id/total_calories_burned"
@@ -98,7 +115,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:text="@string/caloriesBurned"
-            android:textColor="@color/background"
+            android:textColor="@color/textColorProfilePage"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/total_distance_travelled"
             app:layout_constraintTop_toBottomOf="@id/calories_burned_logo" />
@@ -106,17 +123,16 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <LinearLayout
-            android:id="@+id/bottom_sheet"
-            android:layout_width="match_parent"
-            android:layout_height="570dp"
-            android:background="@drawable/rounded_corner"
-            android:paddingTop="10dp"
-            android:orientation="vertical"
-            app:behavior_hideable="false"
-            app:behavior_peekHeight="200dp"
-            app:behavior_skipCollapsed = "true"
-
-            app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+        android:id="@+id/bottom_sheet"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/rounded_corner"
+        android:paddingTop="10dp"
+        android:orientation="vertical"
+        app:behavior_peekHeight="200dp"
+        app:behavior_skipCollapsed = "true"
+        android:layout_marginTop="56dp"
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
             <com.google.android.material.appbar.AppBarLayout
                 android:layout_width="match_parent"
@@ -124,24 +140,24 @@
                 android:scrollbars="horizontal">
 
                 <com.google.android.material.tabs.TabLayout
-                        android:id="@+id/tabs"
-                        android:paddingStart="10dp"
-                        android:paddingEnd="10dp"
-                        app:tabSelectedTextColor="@color/colorPrimary"
-                        app:tabBackground="@drawable/rounded_corner"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:background="@color/background"
-                        app:tabTextColor="@color/cardview_dark_background"
-                        android:theme="@style/AppTheme.AppBarOverlay"/>
+                    android:id="@+id/tabs"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@color/themeBackgroundColor"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
+                    android:theme="@style/AppTheme.AppBarOverlay"
+                    app:tabIndicatorColor="@color/colorPrimary"
+                    app:tabMode="scrollable"
+                    app:tabSelectedTextColor="@color/colorPrimary" />
 
                 <androidx.viewpager.widget.ViewPager
                     android:id="@+id/view_pager"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:background="@color/background"
+                    android:background="@color/themeBackgroundColor"
                     app:layout_behavior="@string/appbar_scrolling_view_behavior" />
             </com.google.android.material.appbar.AppBarLayout>
     </LinearLayout>
 
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
