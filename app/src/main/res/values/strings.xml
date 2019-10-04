@@ -1,28 +1,41 @@
 <resources>
     <string name="app_name">Digifit</string>
-    <string name="pedometer">Pedometer</string>
 
     <!--   step counter strings -->
     <string name="step_count_initial_value">0</string>
     <string name="activity_recognition">This permission is required to count your steps. Please grant permission.</string>
 
-
-    <string name="tab_text_1">Step Counter</string>
+    <!--Viewpager tabs strings-->
+    <string name="pedometer_tab_text">Pedometer</string>
     <string name="tab_text_2">Tracker</string>
     <string name="tab_text_3">Calories</string>
     <string name="tab_text_4">Heart Monitor</string>
     <string name="tab_text_5">Heart Monitor</string>
+
     <string name="distanceTravelled">100km</string>
     <string name="caloriesBurned">10,000 kCal</string>
     <string name="stepsCount">2000</string>
     <string name="userName">John Doe</string>
     <string name="profilePicDescription">users profile picture is displayed</string>
+
     <string-array name="activities">
         <item>Running</item>
         <item>Jogging</item>
     </string-array>
+
     <string name="activityPicker">Pick an Activity</string>
 
 
     <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <!--    Settings page string constants-->
+    <string name="interface_section">Interface</string>
+    <string name="theme">Theme</string>
+    <string-array name="theme_settings">
+        <item>Dark</item>
+        <item>Light</item>
+        <item>Battery Mode</item>
+        <item>Follow System</item>
+    </string-array>
+
 </resources>

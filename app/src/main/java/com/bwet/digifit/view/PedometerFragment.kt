@@ -222,10 +222,7 @@ class PedometerFragment : BaseFragment(), SensorEventListener {
                     AlertDialog.Builder(context!!)
                         .setMessage(R.string.activity_recognition)
                         .setPositiveButton("OK") { _, _ ->  checkPermission()}
-                        .setNegativeButton("No") { _, _ ->
-                            fragmentManager?.beginTransaction()?.remove(this)?.commit()
-                            activity?.finish()
-                        }
+                        .setNegativeButton("No") { _, _ -> }
                         .setCancelable(false)
                         .show()
                 }
