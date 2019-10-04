@@ -1,15 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.bwet.digifit">
+
+
     <!-- user permission -->
     <!-- <uses-permission android:name="android.permission.WAKE_LOCK" /> -->
     <!-- <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" /> -->
     <!-- <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" /> -->
-    <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" /> <!-- use feature -->
+    <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+
+    <!-- use feature -->
     <!-- <uses-feature android:name="android.hardware.sensor.stepcounter" android:required="true"/> -->
-    <uses-feature
-        android:name="android.hardware.sensor.stepdetector"
-        android:required="true" />
+    <uses-feature android:name="android.hardware.sensor.stepdetector" android:required="true" />
 
     <application
         android:allowBackup="true"
@@ -36,6 +40,16 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <service android:name=".services.HardwareStepDetectorService" />
+        <service android:name=".services.AccelerometerStepDetectorService" />
+
+        <receiver android:name=".receivers.BootReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
     </application>
 
 </manifest>

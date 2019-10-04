@@ -1,5 +1,6 @@
 package com.bwet.digifit.model
 
+import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy.REPLACE
@@ -11,9 +12,13 @@ interface StepDao {
     @Insert( onConflict = REPLACE)
     fun insert(step: Step)
 
-    // returns total number of steps insrted to database
+    // returns total number of steps inserted to database as LiveData
     @Query("SELECT COUNT(*) FROM step")
-    suspend fun getTotalStep(): Int
+    fun getTotalStepsLive(): LiveData<Int>
+
+    // returns total number of steps inserted to database
+    @Query("SELECT COUNT(*) FROM step")
+    suspend fun getTotalSteps(): Int
 
     // returns step between two time stamps (timestamp in mills)
     @Query("SELECT * FROM Step WHERE timeStampMills BETWEEN :startTimeMills AND :endTimeMills")

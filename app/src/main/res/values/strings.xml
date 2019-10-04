@@ -3,10 +3,9 @@
 
     <!--   step counter strings -->
     <string name="step_count_initial_value">0</string>
-    <string name="activity_recognition">This permission is required to count your steps. Please grant permission.</string>
 
     <!--Viewpager tabs strings-->
-    <string name="pedometer_tab_text">Pedometer</string>
+    <string name="pedometer_tab">Pedometer</string>
     <string name="tab_text_2">Tracker</string>
     <string name="tab_text_3">Calories</string>
     <string name="tab_text_4">Heart Monitor</string>
@@ -24,8 +23,6 @@
     </string-array>
 
     <string name="activityPicker">Pick an Activity</string>
-
-
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
     <!--    Settings page string constants-->
@@ -48,5 +45,14 @@
     <string name="height">Height</string>
     <string name="nameEditTextHint">Name</string>
     <string name="setupProfileDescription">The App will user this information to calculate calories burned on activities or steps.</string>
+
+    <!--    Notification string constants-->
+    <string name="foregroundNotificationChannelName">Step count channel</string>
+    <string name="foregroundNotificationChannelDescription">Display persistent notification</string>
+    <string name="notification_text_steps">%1$s of %2$s steps walked today.</string>
+
+    <!--    Permission string constants-->
+    <string name="defaultPermissionMessage">If you deny this permission the App may misbehave or may not function properly.</string>
+    <string name="activity_recognition">This permission is required to count your steps. Please grant permission.</string>
 
 </resources>

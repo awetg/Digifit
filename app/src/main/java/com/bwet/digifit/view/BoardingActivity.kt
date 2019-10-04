@@ -6,7 +6,7 @@ import android.os.Bundle
 import android.view.View
 import com.bwet.digifit.R
 import com.bwet.digifit.utils.BoardingItem
-import com.bwet.digifit.utils.BoardingPagerAdapter
+import com.bwet.digifit.adapters.BoardingPagerAdapter
 import kotlinx.android.synthetic.main.activity_boarding.*
 
 class BoardingActivity : AppCompatActivity() {
@@ -20,7 +20,8 @@ class BoardingActivity : AppCompatActivity() {
             BoardingItem("Track your activity", "You can track activities like running or walking with more details metrics like location distance and speed.", R.drawable.ic_directions_walk_black_24dp)
         )
 
-        val boardingPagerAdapter = BoardingPagerAdapter(this, boardingItems)
+        val boardingPagerAdapter =
+            BoardingPagerAdapter(this, boardingItems)
         boarding_viewpager.adapter = boardingPagerAdapter
         boarding_tablayout.setupWithViewPager(boarding_viewpager)
 

@@ -1,4 +1,4 @@
-package com.bwet.digifit.ui.main
+package com.bwet.digifit.viewModel
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
