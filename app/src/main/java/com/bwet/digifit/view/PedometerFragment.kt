@@ -202,10 +202,12 @@ class PedometerFragment : BaseFragment(), SensorEventListener {
     }
 
     private fun checkPermission() {
-        if (activity?.checkSelfPermission( android.Manifest.permission.ACTIVITY_RECOGNITION) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(arrayOf(android.Manifest.permission.ACTIVITY_RECOGNITION),
-                PERMISSION_REQUEST_CODE_ACTIVITY_RECOGNITION
-            )
+        if (android.os.Build.VERSION.SDK_INT >= 29) {
+            if (activity?.checkSelfPermission( android.Manifest.permission.ACTIVITY_RECOGNITION) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(arrayOf(android.Manifest.permission.ACTIVITY_RECOGNITION),
+                    PERMISSION_REQUEST_CODE_ACTIVITY_RECOGNITION
+                )
+            }
         }
     }
 
