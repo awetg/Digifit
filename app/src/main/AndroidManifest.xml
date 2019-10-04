@@ -1,14 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.bwet.digifit">
-
     <!-- user permission -->
     <!-- <uses-permission android:name="android.permission.WAKE_LOCK" /> -->
     <!-- <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" /> -->
     <!-- <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" /> -->
-    <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
-
-    <!-- use feature -->
+    <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" /> <!-- use feature -->
     <!-- <uses-feature android:name="android.hardware.sensor.stepcounter" android:required="true"/> -->
     <uses-feature
         android:name="android.hardware.sensor.stepdetector"
@@ -21,8 +18,15 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".view.SettingsActivity"
+        <activity
+            android:name=".view.ProfileSetupActivity"
             android:theme="@style/AppTheme.NoActionBar"></activity>
+        <activity
+            android:name=".view.BoardingActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".view.SettingsActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".view.MainActivity"
             android:theme="@style/AppTheme.NoActionBar">

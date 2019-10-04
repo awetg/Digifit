@@ -12,4 +12,7 @@
 
 <!--    settings AppbarLayout background color-->
     <color name="settingsAppBarColor">#FFFFFF</color>
+
+    <!--    boarding indicator default color-->
+    <color name="boardingIndicatorDefaultColor">#dadada</color>
 </resources>

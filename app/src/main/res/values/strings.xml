@@ -38,4 +38,15 @@
         <item>Follow System</item>
     </string-array>
 
+    <!--    User boarding string constants  -->
+    <string name="nextBtn">Next</string>
+    <string name="getStartedBtn">Get Started</string>
+    <string name="setupProfile">Setup Your Profile</string>
+    <string name="weightDefaultSelection">70</string>
+    <string name="heightDefaultSelection">170</string>
+    <string name="weight">Weight</string>
+    <string name="height">Height</string>
+    <string name="nameEditTextHint">Name</string>
+    <string name="setupProfileDescription">The App will user this information to calculate calories burned on activities or steps.</string>
+
 </resources>
