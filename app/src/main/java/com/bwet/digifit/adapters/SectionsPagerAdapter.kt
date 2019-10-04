@@ -7,7 +7,7 @@ import androidx.fragment.app.FragmentPagerAdapter
 import com.bwet.digifit.view.PedometerFragment
 import com.bwet.digifit.R
 import com.bwet.digifit.view.PlaceholderFragment
-import com.bwet.digifit.view.ActivityTracker
+import com.bwet.digifit.view.ActivityTrackerFragment
 
 private val TAB_TITLES = arrayOf(
     R.string.pedometer_tab,
@@ -20,7 +20,7 @@ private val TAB_TITLES = arrayOf(
 
 private val TAB_FRAGMENTS = arrayOf(
     PedometerFragment.newInstance(),
-    ActivityTracker.newInstance(),
+    ActivityTrackerFragment.newInstance(),
     PlaceholderFragment.newInstance(3),
     PlaceholderFragment.newInstance(4)
 )
@@ -29,7 +29,7 @@ class SectionsPagerAdapter(private val context: Context, fm: FragmentManager) :
     FragmentPagerAdapter(fm) {
 
     override fun getItem(position: Int): Fragment {
-        return TAB_FRAGMENTS.get(position)
+        return TAB_FRAGMENTS[position]
 
     }
 

@@ -98,7 +98,6 @@ class PedometerFragment : BaseFragment() {
         return view
     }
 
-
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
