@@ -36,15 +36,6 @@ class MainActivity : AppCompatActivity(){
 
         setContentView(R.layout.activity_main)
 
-        val sectionsPagerAdapter =
-            SectionsPagerAdapter(this, supportFragmentManager)
-        val viewPager: ViewPager = findViewById(R.id.view_pager)
-        viewPager.adapter = sectionsPagerAdapter
-        val tabs: TabLayout = findViewById(R.id.tabs)
-        tabs.setupWithViewPager(viewPager)
-
-        setting_icon.setOnClickListener { startActivity(Intent(this, SettingsActivity::class.java)) }
-
         // get user data
         val userSharedPref = this.getSharedPreferences(USER_PREFERENCE_FILE_KEY, Context.MODE_PRIVATE)
         val name = userSharedPref.getString(PREFERENCE_KEY_NAME, null)
@@ -54,19 +45,31 @@ class MainActivity : AppCompatActivity(){
             User.name = name
             User.weight = weight
             User.height = height
+
+            val sectionsPagerAdapter =
+                SectionsPagerAdapter(this, supportFragmentManager)
+            val viewPager: ViewPager = findViewById(R.id.view_pager)
+            viewPager.adapter = sectionsPagerAdapter
+            val tabs: TabLayout = findViewById(R.id.tabs)
+            tabs.setupWithViewPager(viewPager)
+
+            setting_icon.setOnClickListener { startActivity(Intent(this, SettingsActivity::class.java)) }
+
+
+            // create foreground service notification channel for android oreo or higher
+            createNotificationChannel(
+                FOREGROUND_NOTIFICATION_CHANNEL_ID,
+                getString(R.string.foregroundNotificationChannelName),
+                getString(R.string.foregroundNotificationChannelDescription),
+                NotificationManager.IMPORTANCE_LOW
+            )
+
+            ContextCompat.startForegroundService(applicationContext, Intent(this, HardwareStepDetectorService::class.java))
+
         } else {
             startActivity(Intent(this, ProfileSetupActivity::class.java))
         }
 
-        // create foreground service notification channel for android oreo or higher
-        createNotificationChannel(
-            FOREGROUND_NOTIFICATION_CHANNEL_ID,
-            getString(R.string.foregroundNotificationChannelName),
-            getString(R.string.foregroundNotificationChannelDescription),
-            NotificationManager.IMPORTANCE_LOW
-        )
-
-        ContextCompat.startForegroundService(this, Intent(this, HardwareStepDetectorService::class.java))
     }
 
 

@@ -55,4 +55,9 @@
     <string name="defaultPermissionMessage">If you deny this permission the App may misbehave or may not function properly.</string>
     <string name="activity_recognition">This permission is required to count your steps. Please grant permission.</string>
 
+    <!--    Graph view string constant-->
+    <string name="day">Day</string>
+    <string name="week">Week</string>
+    <string name="month">Month</string>
+
 </resources>

@@ -10,8 +10,6 @@ import androidx.core.app.ActivityCompat
 
 class RuntimePermissionUtil private constructor (private val activity: Activity) {
 
-    private val askRuntimePermission = Build.VERSION.SDK_INT >= 23
-
     // add all permissions here
     private val requiredPermissions = arrayOf<String>(
         android.Manifest.permission.FOREGROUND_SERVICE,
@@ -23,19 +21,17 @@ class RuntimePermissionUtil private constructor (private val activity: Activity)
     }
 
     companion object : SingletonHolder<RuntimePermissionUtil, Activity>(::RuntimePermissionUtil) {
-        val PERMISSION_REQUEST_CODE = 1111
+        const val PERMISSION_REQUEST_CODE = 1111
     }
 
     fun requestAllUnGrantedermissions() {
-        if (askRuntimePermission) {
-            val unGrantedPermissions = requiredPermissions.filter {
-                ActivityCompat.checkSelfPermission(activity, it) != PackageManager.PERMISSION_GRANTED
-            }
-            val permissionsWithReuestRationale = unGrantedPermissions.filter {
-                ActivityCompat.shouldShowRequestPermissionRationale(activity, it)
-            }
-            requestPermissions(Array(permissionsWithReuestRationale.size) {permissionsWithReuestRationale[it]})
+        val unGrantedPermissions = requiredPermissions.filter {
+            ActivityCompat.checkSelfPermission(activity, it) != PackageManager.PERMISSION_GRANTED
         }
+        val permissionsWithReuestRationale = unGrantedPermissions.filter {
+            ActivityCompat.shouldShowRequestPermissionRationale(activity, it)
+        }
+        requestPermissions(Array(permissionsWithReuestRationale.size) {permissionsWithReuestRationale[it]})
     }
 
     @TargetApi(Build.VERSION_CODES.Q)
