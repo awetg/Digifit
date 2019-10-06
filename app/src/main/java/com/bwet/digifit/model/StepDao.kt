@@ -27,6 +27,11 @@ interface StepDao {
 /*  Returns StepCount with number of steps grouped by interval(interval in seconds) of steps between two timestamp (timestamp in mills)
     for interval formats refer https://www.sqlite.org/lang_datefunc.html
     strftime('%Y-%m-%d %H:%M:%S', datetime(timeStampMills/1000, 'unixepoch', 'localtime')) */
-    @Query("SELECT COUNT(timeStampMills) as count, strftime(:intervalFormat, datetime(timeStampMills/1000, 'unixepoch', 'localtime')) as intervalFormat FROM step WHERE timeStampMills  BETWEEN :startTimeMills AND :endTimeMills GROUP BY round(timeStampMills / (1000 * :intervalSec))" )
+    @Query(
+        """SELECT COUNT(timeStampMills) as count, strftime(:intervalFormat, datetime(timeStampMills/1000, 'unixepoch', 'localtime')) as intervalFormat
+                FROM step WHERE timeStampMills  BETWEEN :startTimeMills AND :endTimeMills 
+                GROUP BY round(strftime('%s', datetime(timeStampMills/1000, 'unixepoch', 'localtime')) / (:intervalSec))
+                """
+    )
     suspend fun getStepBetweenTimeGroupedByInterval(startTimeMills: Long, endTimeMills: Long, intervalSec: Long, intervalFormat: String): List<StepCount>
 }

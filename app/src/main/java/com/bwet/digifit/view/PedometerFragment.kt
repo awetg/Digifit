@@ -4,8 +4,8 @@ package com.bwet.digifit.view
 import android.animation.ObjectAnimator
 import android.content.DialogInterface
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,19 +13,29 @@ import android.view.animation.DecelerateInterpolator
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.bwet.digifit.R
-import com.bwet.digifit.utils.DEBUG_TAG
+import com.bwet.digifit.model.StepCount
 import com.bwet.digifit.utils.RuntimePermissionUtil
+import com.bwet.digifit.utils.StepGraphUtil
+import com.bwet.digifit.utils.TimeUtil
 import com.bwet.digifit.viewModel.StepViewModel
+import com.google.android.material.tabs.TabLayout
+import com.jjoe64.graphview.DefaultLabelFormatter
+import com.jjoe64.graphview.GridLabelRenderer
 import kotlinx.android.synthetic.main.fragment_pedometer.*
 import kotlinx.android.synthetic.main.fragment_pedometer.view.*
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import java.util.*
 
 
 class PedometerFragment : BaseFragment() {
 
     private lateinit var stepViewModel: StepViewModel
+    private lateinit var graphUtil: StepGraphUtil
 
     companion object {
+        private const val FAKE_DATA = false
+
         @JvmStatic
         fun newInstance() = PedometerFragment()
     }
@@ -45,14 +55,45 @@ class PedometerFragment : BaseFragment() {
             animateProgressBar(it)
         })
 
-        view.test_btn.setOnClickListener {
-            val startTime = System.currentTimeMillis() - 7200 * 1000
-            val endTime = System.currentTimeMillis()
-            launch {
-                stepViewModel.getStepCountByInterval(startTime, endTime, 3600, "%H")
-                    .forEach { Log.d(DEBUG_TAG, "count ${it.count} intervalFormat ${it.intervalFormat}") }
-            }
+        view.grap_title_txt.text = TimeUtil.getTodayGraphText()
+
+        graphUtil = StepGraphUtil(view.step_graph,context?.getColor(R.color.colorPrimary) ?: Color.GREEN)
+
+        view.step_graph.viewport.isXAxisBoundsManual = true
+        view.step_graph.viewport.isYAxisBoundsManual = true
+        view.step_graph.gridLabelRenderer.gridStyle = GridLabelRenderer.GridStyle.HORIZONTAL
+        launch {
+            graphUtil.setDayGraph(getStepCountList(TimeUtil.getStartAndEndOfToday(), TimeUtil.secondsInHour, "%H"))
         }
+
+
+        view.step_grap_tablayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+            override fun onTabSelected(tab: TabLayout.Tab?) {
+                when(tab?.position) {
+                    0 -> {
+                        launch {
+                            graphUtil.setDayGraph(getStepCountList(TimeUtil.getStartAndEndOfToday(), TimeUtil.secondsInHour, "%H"))
+                            view.grap_title_txt.text = TimeUtil.getTodayGraphText()
+                        }
+                    }
+                    1 -> {
+                        launch {
+                            graphUtil.setWeekGraph(getStepCountList(TimeUtil.getFirstAndLastDaysOfThisWeek(), TimeUtil.secondsInDay, "%w"))
+                            view.grap_title_txt.text = TimeUtil.getWeekGraphText()
+                        }
+                    }
+                    2 -> {
+                        launch {
+                            graphUtil.setMonthGraph(getStepCountList(TimeUtil.getFirstAndLastDaysOfThisMonth(), TimeUtil.secondsInDay, "%d"))
+                            view.grap_title_txt.text = TimeUtil.getMonthGraphText()
+                        }
+                    }
+                }
+            }
+            override fun onTabReselected(tab: TabLayout.Tab?) {}
+
+            override fun onTabUnselected(tab: TabLayout.Tab?) {}
+        })
 
         return view
     }
@@ -87,5 +128,18 @@ class PedometerFragment : BaseFragment() {
         animator.interpolator = DecelerateInterpolator()
         animator.start()
         step_progressBar.clearAnimation()
+    }
+
+    private suspend fun getStepCountList(between: Pair<Calendar, Calendar>, secondsInterval: Long, intervalFormat: String): List<StepCount>? {
+        return if (FAKE_DATA)
+            null
+        else async {
+            stepViewModel.getStepCountByInterval(
+                between.first.timeInMillis,
+                between.second.timeInMillis,
+                secondsInterval,
+                intervalFormat
+            )
+        }.await()
     }
 }
