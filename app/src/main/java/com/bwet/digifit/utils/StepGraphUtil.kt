@@ -45,7 +45,7 @@ class StepGraphUtil (private val graph: GraphView, private val seriesColor: Int)
             override fun formatLabel(value: Double, isValueX: Boolean): String {
                 return if (isValueX) {
                     val day = value.toInt()
-                    calendarWeekDays[if (stepCountList == null) day else (day + 1)] ?: super.formatLabel(value, isValueX)
+                    calendarWeekDays[(day + 1)] ?: super.formatLabel(value, isValueX)
                 } else {
                     super.formatLabel(value, isValueX)
                 }
@@ -64,7 +64,7 @@ class StepGraphUtil (private val graph: GraphView, private val seriesColor: Int)
             override fun formatLabel(value: Double, isValueX: Boolean): String {
                 return if (isValueX) {
                     val day = if (value < 1) 1 else value.toInt()
-                    if (day > 25) "" else "$monthName $day"
+                    if (day > 25 || day < 5) "" else "$monthName $day"
                 } else {
                     super.formatLabel(value, isValueX)
                 }
@@ -99,11 +99,7 @@ class StepGraphUtil (private val graph: GraphView, private val seriesColor: Int)
     }
 
     private fun generateWeekFakeData(): List<StepCount> {
-        val cal = TimeUtil.getFirsDayOfThisWeek()
-        return (0..6).map { day -> StepCount((0..200).random(),cal.let {
-            it.set(Calendar.DAY_OF_WEEK, day)
-            it.get(Calendar.DAY_OF_WEEK).toString()
-        }) }.sortedBy { it.intervalFormat.toInt() }
+        return (0..6).map { day -> StepCount((50..200).random(), day.toString().padStart(2, '0'))}.sortedBy { it.intervalFormat.toInt() }
 
     }
 
