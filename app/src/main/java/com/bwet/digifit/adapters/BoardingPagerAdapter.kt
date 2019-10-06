@@ -1,4 +1,4 @@
-package com.bwet.digifit.utils
+package com.bwet.digifit.adapters
 
 import android.content.Context
 import android.view.LayoutInflater
@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.viewpager.widget.PagerAdapter
 import com.bwet.digifit.R
+import com.bwet.digifit.utils.BoardingItem
 import kotlinx.android.synthetic.main.boarding_layout.view.*
 
 class BoardingPagerAdapter(private val context: Context, private val boardingItems: List<BoardingItem>) : PagerAdapter() {

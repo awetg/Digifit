@@ -2,6 +2,7 @@ package com.bwet.digifit.viewModel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
 import com.bwet.digifit.model.AppDB
 import com.bwet.digifit.model.Step
 import com.bwet.digifit.model.StepCount
@@ -10,7 +11,7 @@ class StepViewModel(application: Application): AndroidViewModel(application) {
 
     private val db = AppDB.getInstance(getApplication())
 
-    suspend fun getTotalSteps(): Int = db.stepDao().getTotalStep()
+    fun getTotalStepsLive(): LiveData<Int> = db.stepDao().getTotalStepsLive()
 
     fun addStep(step: Step) = db.stepDao().insert(step)
 

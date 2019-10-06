@@ -1,4 +1,4 @@
-package com.bwet.digifit.ui.main
+package com.bwet.digifit.adapters
 
 import android.content.Context
 import androidx.fragment.app.Fragment
@@ -6,10 +6,11 @@ import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
 import com.bwet.digifit.view.PedometerFragment
 import com.bwet.digifit.R
+import com.bwet.digifit.view.PlaceholderFragment
 import com.bwet.digifit.view.ActivityTracker
 
 private val TAB_TITLES = arrayOf(
-    R.string.pedometer_tab_text,
+    R.string.pedometer_tab,
     R.string.tab_text_2,
     R.string.tab_text_3,
     R.string.tab_text_4

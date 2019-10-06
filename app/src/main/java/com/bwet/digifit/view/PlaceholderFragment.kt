@@ -1,4 +1,4 @@
-package com.bwet.digifit.ui.main
+package com.bwet.digifit.view
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.bwet.digifit.R
+import com.bwet.digifit.viewModel.PageViewModel
 
 /**
  * A placeholder fragment containing a simple view.
