@@ -34,7 +34,7 @@ class PedometerFragment : BaseFragment() {
     private lateinit var graphUtil: StepGraphUtil
 
     companion object {
-        private const val FAKE_DATA = false
+        private const val FAKE_DATA = true
 
         @JvmStatic
         fun newInstance() = PedometerFragment()

@@ -4,5 +4,5 @@ object User {
     var name: String = ""
     var weight: Int = 0
     var height: Int = 0
-    var dailyStepGoal = 5000
+    var dailyStepGoal = 0
 }

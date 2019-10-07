@@ -23,6 +23,7 @@
     <!-- use feature -->
     <!-- <uses-feature android:name="android.hardware.sensor.stepcounter" android:required="true"/> -->
     <uses-feature android:name="android.hardware.sensor.stepdetector" android:required="true" />
+    <uses-feature android:name="android.hardware.camera" android:required="true" />
 
     <application
         android:allowBackup="true"
@@ -57,6 +58,18 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
+
+        <provider
+            android:authorities="com.bwet.digifit.fileprovider"
+            android:name="androidx.core.content.FileProvider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_path">
+            </meta-data>
+        </provider>
+
     </application>
 
 </manifest>

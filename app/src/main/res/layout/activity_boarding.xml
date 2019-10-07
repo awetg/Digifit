@@ -38,7 +38,7 @@
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
         android:drawableEnd="@drawable/ic_arrow_forward_24dp"
-        android:text="@string/nextBtn"
+        android:text="@string/profileSaveBtn"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
