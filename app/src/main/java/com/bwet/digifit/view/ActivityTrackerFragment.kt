@@ -77,6 +77,7 @@ class ActivityTrackerFragment : Fragment(), LocationListener, AdapterView.OnItem
     ): View? {
 
         val view = inflater.inflate(R.layout.fragment_activity_tracker, container, false)
+        view.startSessionbtn?.setBackgroundResource(R.drawable.ic_play_circle_filled_black_24dp)
         activity?.let {
             myAdapter = ArrayAdapter(it, android.R.layout.simple_spinner_item, tracks)
             myAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)

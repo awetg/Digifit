@@ -15,4 +15,7 @@
     <!--    boarding indicator default color-->
     <color name="boardingIndicatorDefaultColor">#dadada</color>
     <color name="stopSign">#FF0000</color>
+
+    <!--    Icon colors-->
+    <color name="activityIconColor">#FF000000</color>
 </resources>
