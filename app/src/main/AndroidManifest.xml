@@ -2,6 +2,15 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.bwet.digifit">
 
+    <!-- user permission -->
+    <!-- <uses-permission android:name="android.permission.WAKE_LOCK" /> -->
+     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
+
+    <!-- use feature -->
+    <uses-feature  android:name="android.hardware.sensor.stepdetector" android:required="true" />
+
 
     <!-- user permission -->
     <!-- <uses-permission android:name="android.permission.WAKE_LOCK" /> -->
@@ -40,7 +49,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <service android:name=".services.HardwareStepDetectorService" />
         <service android:name=".services.AccelerometerStepDetectorService" />
 
@@ -49,7 +57,6 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
-
     </application>
 
 </manifest>

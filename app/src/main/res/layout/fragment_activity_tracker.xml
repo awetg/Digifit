@@ -1,12 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".view.ActivityTracker">
+    tools:context=".view.ActivityTrackerFragment">
 
-   <TextView
+   <Spinner
        android:layout_width="wrap_content"
        android:layout_height="wrap_content"
-       />
+       android:textAlignment="center"
+       android:layout_gravity="center_horizontal"
+       android:dropDownWidth="wrap_content"
+       android:layout_marginTop="20dp"
+       android:autofillHints="@string/activityPicker"
+       android:id="@+id/spinner"/>
+   <LinearLayout
+       android:layout_width="match_parent"
+       android:layout_height="wrap_content"
+       android:layout_marginTop="50dp">
+
+       <Button
+           android:id="@+id/startSessionbtn"
+           android:layout_width="50dp"
+           android:layout_height="50dp"
+           android:layout_marginStart="70dp"
+           android:background="@drawable/ic_play_circle_filled_black_24dp"
+           android:elevation="5dp"
+           app:cornerRadius="25dp"/>
+
+      <Button
+          android:layout_width="50dp"
+          android:layout_height="50dp"
+          android:id="@+id/savebtn"
+          android:visibility="invisible"
+          android:elevation="5dp"
+          android:background="@drawable/ic_stop_black_24dp"
+          android:backgroundTint="@color/stopSign"
+          android:layout_marginStart="150dp"/>
+   </LinearLayout>
+   <TextView
+       android:layout_width="match_parent"
+       android:layout_height="wrap_content"
+       android:textAlignment="center"
+       android:layout_marginTop="100dp"
+       android:textSize="30sp"
+       android:id="@+id/clock"/>
+
+   <androidx.recyclerview.widget.RecyclerView
+       android:layout_marginTop="150dp"
+       android:layout_width="match_parent"
+       android:layout_height="wrap_content"
+       android:id="@+id/activity_recyclerView"/>
+
 </FrameLayout>
