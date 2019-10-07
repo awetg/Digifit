@@ -5,77 +5,47 @@
     android:layout_height="match_parent"
     tools:context=".view.ActivityTrackerFragment">
 
-
-   <TextView
-       android:layout_width="match_parent"
-       android:layout_height="wrap_content"
-       android:id="@+id/clock"/>
-   <TextView
-       android:layout_width="match_parent"
-       android:layout_height="wrap_content"
-       android:id="@+id/activity_picker"
-       android:text="@string/activityPicker"
-       android:textSize="25sp"
-       android:layout_marginTop="20dp"
-       android:layout_marginStart="100dp"
-       android:layout_marginEnd="100dp"
-       android:textAlignment="center"/>
    <Spinner
-       android:layout_width="match_parent"
+       android:layout_width="wrap_content"
        android:layout_height="wrap_content"
-       android:layout_marginTop="55dp"
        android:textAlignment="center"
+       android:layout_gravity="center_horizontal"
+       android:dropDownWidth="wrap_content"
+       android:layout_marginTop="20dp"
+       android:autofillHints="@string/activityPicker"
        android:id="@+id/spinner"/>
-
-   <Button
-       android:id="@+id/startSessionbtn"
-       android:layout_width="100dp"
-       android:layout_height="100dp"
-       android:layout_marginStart="150dp"
-       android:layout_marginTop="80dp"
-       android:background="@drawable/ic_play_circle_filled_black_24dp"
-       android:backgroundTint="@color/colorPrimaryDark" />
    <LinearLayout
-       android:layout_marginTop="180dp"
-       android:layout_width="match_parent"
-       android:layout_height="wrap_content">
-      <TextView
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:paddingStart="100dp"
-          android:paddingEnd="10sp"
-          android:textSize="20sp"
-          android:id="@+id/distance_travelled"
-          android:text="0"/>
-
-      <TextView
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:textSize="20sp"
-          android:text="Kms"
-          android:id="@+id/Kms"/>
-      <TextView
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:textSize="20sp"
-          android:paddingStart="100dp"
-          android:paddingEnd="10sp"
-          android:text="0"
-          android:id="@+id/activity_duration"/>
-
-      <TextView
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:textSize="20sp"
-          android:paddingStart="0dp"
-          android:text=" mins"
-          android:id="@+id/mins"/>
-   </LinearLayout>
-   <ListView
-       android:layout_marginTop="250dp"
        android:layout_width="match_parent"
        android:layout_height="wrap_content"
-       tools:listitem="@layout/support_simple_spinner_dropdown_item"
-       android:id="@+id/session_list_view"/>
+       android:layout_marginTop="50dp">
+     <Button
+          android:id="@+id/startSessionbtn"
+          android:layout_width="50dp"
+          android:layout_height="50dp"
+          android:layout_marginStart="70dp"
+          android:background="@drawable/ic_play_circle_filled_black_24dp"
+          android:backgroundTint="@color/colorPrimaryDark" />
+      <Button
+          android:layout_width="50dp"
+          android:layout_height="50dp"
+          android:id="@+id/savebtn"
+          android:visibility="invisible"
+          android:background="@drawable/ic_stop_black_24dp"
+          android:backgroundTint="@color/stopSign"
+          android:layout_marginStart="150dp"/>
+   </LinearLayout>
+   <TextView
+       android:layout_width="match_parent"
+       android:layout_height="wrap_content"
+       android:textAlignment="center"
+       android:layout_marginTop="100dp"
+       android:textSize="30sp"
+       android:id="@+id/clock"/>
+
+   <androidx.recyclerview.widget.RecyclerView
+       android:layout_marginTop="150dp"
+       android:layout_width="match_parent"
+       android:layout_height="wrap_content"
+       android:id="@+id/activity_recyclerView"/>
 
 </FrameLayout>

@@ -3,7 +3,6 @@
     <color name="colorPrimary">#008577</color>
     <color name="colorPrimaryDark">#00574B</color>
     <color name="colorAccent">#D81B60</color>
-
     <color name="themeBackgroundColor">#FFFFFF</color>
 
     <!--    hard coded color for profile page text ( does not change with theme)
@@ -15,4 +14,5 @@
 
     <!--    boarding indicator default color-->
     <color name="boardingIndicatorDefaultColor">#dadada</color>
+    <color name="stopSign">#FF0000</color>
 </resources>
