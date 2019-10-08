@@ -10,7 +10,6 @@ import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
 import android.os.IBinder
-import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import com.bwet.digifit.R
@@ -52,14 +51,12 @@ class ActivityTrackerService : BaseService(), LocationListener {
             if (pauseSession) {
                 sessionOn = false
                 locationManager.removeUpdates(this)
-                Log.d("DBG", "pause")
 
             } else {
                 val startTime = intent.getLongExtra(ACTIVITY_SERVICE_INTENT_START_TIME, -1L)
                 val elapsedTime = intent.getLongExtra(ACTIVITY_SERVICE_INTENT_ELAPSED_TIME, -1L)
                 val activityType = intent.getStringExtra(ACTIVITY_SERVICE_INTENT_SELECTED_ACTIVITY)
                 if (startTime > 0 && elapsedTime >= 0 && activityType != null) {
-                    Log.d("DBG", "start: $startTime, pause:$elapsedTime")
                     launch {
                         appDB.activitySessionDao()
                             .insert(ActivitySession(startTime, startTime + elapsedTime, locationList, distance, activityType))
@@ -71,7 +68,7 @@ class ActivityTrackerService : BaseService(), LocationListener {
 
         requestLocationUpdates()
 
-        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) updateRecevier(true)
+        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) updateReceiver(true)
 
         return Service.START_STICKY
     }
@@ -107,15 +104,14 @@ class ActivityTrackerService : BaseService(), LocationListener {
     }
 
     override fun onProviderEnabled(provider: String?) {
-        if (provider == "gps") updateRecevier(true)
+        if (provider == "gps") updateReceiver(true)
     }
 
     override fun onProviderDisabled(provider: String?) {
-        if (provider == "gps") updateRecevier(false)
+        if (provider == "gps") updateReceiver(false)
     }
 
     private fun requestLocationUpdates() {
-        Log.d("DBG", "requesting updates")
         locationManager.removeUpdates(this)
         try {
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 500, 5.0f, this)
@@ -124,12 +120,10 @@ class ActivityTrackerService : BaseService(), LocationListener {
 
         } catch (e: SecurityException) {
             e.printStackTrace()
-            Log.d(DEBUG_TAG, "security exception ${e.message}")
         }
     }
 
-    fun updateRecevier(value: Boolean) {
-        Log.d("DBG", "provider changed")
+    private fun updateReceiver(value: Boolean) {
         val intent = Intent()
         intent.action = BROADCAST_ACTION_GPS_PROVIDER
         intent.putExtra(GPS_PROVIDER_ENABLED, value)

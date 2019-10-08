@@ -1,9 +1,7 @@
 package com.bwet.digifit.utils
 
-import android.util.Log
 import java.text.SimpleDateFormat
 import java.util.*
-import java.util.concurrent.TimeUnit
 
 object TimeUtil {
 
@@ -11,7 +9,7 @@ object TimeUtil {
     const val secondsInDay = 86400L
     const val secondsIn5Days = 86400L
 
-    fun getFirsDayOfThisWeek(): Calendar {
+    private fun getFirsDayOfThisWeek(): Calendar {
         val cal = getClearCalendar()
         cal.set(Calendar.DAY_OF_WEEK, cal.firstDayOfWeek)
         return cal
@@ -60,22 +58,20 @@ object TimeUtil {
         return sdf.format(Date(start.timeInMillis))
     }
 
-    fun getDate(startTimeMills: Long, endTimeMills: Long): String {
+    fun getDate(startTimeMills: Long): String {
        return SimpleDateFormat("MMM d").format(Date(startTimeMills))
-        //return date
     }
 
     fun getDuration(startTimeMills: Long, endTimeMills: Long): String {
-        Log.d(DEBUG_TAG,"$startTimeMills")
         val timeDiff = endTimeMills - startTimeMills
         val diffInSeconds = (timeDiff/1000)%60//TimeUnit.MILLISECONDS.toSeconds(timeDiff)
         val diffInMinutes = (timeDiff/60000)%60//TimeUnit.MILLISECONDS.toMinutes(timeDiff)
         val diffInHours = (timeDiff/3600000)%60//TimeUnit.MILLISECONDS.toHours(timeDiff)
         val duration: String =
             if (diffInHours > 0)
-                "$diffInHours hrs " + "$diffInMinutes mins "+ "$diffInSeconds secs"
+                "$diffInHours hrs $diffInMinutes mins $diffInSeconds secs"
             else if (diffInMinutes > 0 && diffInMinutes < 60)
-                "$diffInMinutes mins " + "$diffInSeconds secs "
+                "$diffInMinutes mins $diffInSeconds secs "
             else
                 "$diffInSeconds secs"
         return duration

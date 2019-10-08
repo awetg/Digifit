@@ -47,7 +47,7 @@ class ActivityRecyclerAdapter(private var sessions: List<ActivitySession>) : Rec
         holder.itemView.activity_name.setBackgroundResource(icon)
         holder.itemView.activity_distance.text = "${String.format("%.2f", activitySession.distance)} m(s)"
         holder.itemView.activity_time.text = TimeUtil.getDuration(activitySession.startTimeMills, activitySession.endTimeMills)
-        holder.itemView.session_date.text = TimeUtil.getDate(activitySession.startTimeMills, activitySession.endTimeMills)
+        holder.itemView.session_date.text = TimeUtil.getDate(activitySession.startTimeMills)
         holder.itemView.setOnClickListener{ clickListener(activitySession) }
     }
 

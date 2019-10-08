@@ -1,7 +1,6 @@
 package com.bwet.digifit.utils
 
 import android.content.Context
-import android.util.Log
 import com.bwet.digifit.R
 
 class SharedPreferenceUtil (private val context: Context){
@@ -63,6 +62,7 @@ class SharedPreferenceUtil (private val context: Context){
             .edit()
             .putLong(PREFERENCE_KEY_START_TIME, chronometerState.startTime)
             .putLong(PREFERENCE_KEY_PAUSE_OFFSET, chronometerState.pauseOffset)
+            .putLong(PREFERENCE_KEY_ELAPSED_TIME, chronometerState.elapsedTime)
             .apply()
     }
 
@@ -70,6 +70,7 @@ class SharedPreferenceUtil (private val context: Context){
         val sp = context.getSharedPreferences(CHRONOMETER_PREFERENCE_FILE_KEY, Context.MODE_PRIVATE)
         val startTime = sp.getLong(PREFERENCE_KEY_START_TIME, 0L)
         val pauseOffset = sp.getLong(PREFERENCE_KEY_PAUSE_OFFSET, 0L)
-        return ChronometerState(startTime, pauseOffset)
+        val elapsedTime = sp.getLong(PREFERENCE_KEY_ELAPSED_TIME, 0L)
+        return ChronometerState(startTime, pauseOffset, elapsedTime)
     }
 }
