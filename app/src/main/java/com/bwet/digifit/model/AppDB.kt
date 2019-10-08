@@ -4,10 +4,13 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 
-@Database(entities = [Step::class], version = 1, exportSchema = false)
+@Database(entities = [Step::class, ActivitySession::class], version = 1, exportSchema = false)
+@TypeConverters(LocationConverter::class)
 abstract class AppDB : RoomDatabase() {
     abstract fun stepDao(): StepDao
+    abstract fun activitySessionDao(): ActivitySessionDao
 
     companion object {
 

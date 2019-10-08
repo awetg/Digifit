@@ -1,21 +1,21 @@
 package com.bwet.digifit.adapters
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.bwet.digifit.R
-import com.bwet.digifit.view.Session
+import com.bwet.digifit.model.ActivitySession
+import com.bwet.digifit.utils.TimeUtil
 import kotlinx.android.synthetic.main.activity_list_items.view.*
 
 
 class ActivityViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
 
-class ActivityRecyclerAdapter(private val sessions: MutableList<Session>) : RecyclerView.Adapter<ActivityViewHolder>() {
+class ActivityRecyclerAdapter(private var sessions: List<ActivitySession>) : RecyclerView.Adapter<ActivityViewHolder>() {
 
-    private var clickListner: (Session) -> Unit = { _ -> }
+    private var clickListener: (ActivitySession) -> Unit = { _ -> }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ActivityViewHolder {
         return ActivityViewHolder(
@@ -26,38 +26,28 @@ class ActivityRecyclerAdapter(private val sessions: MutableList<Session>) : Recy
 
     override fun getItemCount(): Int  = sessions.size
 
-    fun setClickListener(newClickListener: (Session) -> Unit) {
-        //clickListner = newClickListener
-        Log.d("on item clicked", "item on the list was clicked")
+    fun setClickListener(newClickListener: (ActivitySession) -> Unit) {
+        clickListener = newClickListener
     }
 
-    fun addSession(session: Session) {
-        sessions.add(session)
+//    fun addSession(session: ActivitySession) {
+//        sessions.add(session)
+//        notifyDataSetChanged()
+//    }
+
+    fun purgeAdd(sessionList: List<ActivitySession>) {
+        sessions = sessionList
         notifyDataSetChanged()
     }
 
     override fun onBindViewHolder(holder: ActivityViewHolder, position: Int) {
-        Log.d("bog","in adapter binding view holder")
-        if(sessions[position].activity == "Running") {
-            holder.itemView.activity_name.setBackgroundResource(R.drawable.ic_directions_run_black_24dp)
-        }else {
-            holder.itemView.activity_name.setBackgroundResource(R.drawable.ic_directions_walk_black_24dp)
-        }
-        holder.itemView.activity_distance.text = sessions[position].distance.toString() + "Km(s)"
 
-        if(sessions[position].duration > 60){
-            val time = sessions[position].duration
-            var secs = time/1000
-            var mins = secs/60
-            var hrs = mins/60
-            secs %= 60
-            mins %= 60
-
-            holder.itemView.activity_duration.text = String.format("%02d",hrs) + ":"+String.format("%02d",mins) +":"+String.format("%02d",secs)
-        }
-
-
-        holder.itemView.setOnClickListener{ clickListner(sessions[position]) }
+        val activitySession = sessions[position]
+        val icon = if (activitySession.activityType == "Running") R.drawable.ic_directions_run_black_24dp else R.drawable.ic_directions_walk_black_24dp
+        holder.itemView.activity_name.setBackgroundResource(icon)
+        holder.itemView.activity_distance.text = "${String.format("%.2f", activitySession.distance)} m(s)"
+        holder.itemView.activity_time.text = TimeUtil.getActivityTimeAndDuration(activitySession.startTimeMills, activitySession.endTimeMills)
+        holder.itemView.setOnClickListener{ clickListener(activitySession) }
     }
 
 }

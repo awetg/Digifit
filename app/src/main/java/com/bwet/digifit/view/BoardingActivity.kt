@@ -17,7 +17,7 @@ class BoardingActivity : AppCompatActivity() {
 
         val boardingItems = listOf(
             BoardingItem("Track your steps", "The app will uses builtin step detector to track your steps without draining your battery.", R.drawable.ic_directions_walk_black_24dp),
-            BoardingItem("Track your activity", "You can track activities like running or walking with more details metrics like location distance and speed.", R.drawable.ic_directions_walk_black_24dp)
+            BoardingItem("Track your activityType", "You can track activities like running or walking with more details metrics like locationList distance and speed.", R.drawable.ic_directions_walk_black_24dp)
         )
 
         val boardingPagerAdapter =

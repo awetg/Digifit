@@ -6,6 +6,7 @@ import android.app.AlertDialog
 import android.content.DialogInterface
 import android.content.pm.PackageManager
 import android.os.Build
+import android.util.Log
 import androidx.core.app.ActivityCompat
 
 class RuntimePermissionUtil private constructor (private val activity: Activity) {
@@ -13,10 +14,11 @@ class RuntimePermissionUtil private constructor (private val activity: Activity)
     // add all permissions here
     private val requiredPermissions = arrayOf<String>(
         android.Manifest.permission.FOREGROUND_SERVICE,
-        android.Manifest.permission.RECEIVE_BOOT_COMPLETED
+        android.Manifest.permission.RECEIVE_BOOT_COMPLETED,
+        android.Manifest.permission.ACCESS_FINE_LOCATION
     )
 
-    private fun requestPermissions(permissions: Array<String>) {
+    fun requestPermissions(permissions: Array<String>) {
         ActivityCompat.requestPermissions(activity, permissions, PERMISSION_REQUEST_CODE)
     }
 
@@ -39,7 +41,7 @@ class RuntimePermissionUtil private constructor (private val activity: Activity)
         requestPermissions(arrayOf(android.Manifest.permission.ACTIVITY_RECOGNITION))
     }
 
-    // An activity requesting permission can listen to onRequestPermissionsResult and take further action with this method if needed
+    // An activityType requesting permission can listen to onRequestPermissionsResult and take further action with this method if needed
     fun showDialogAndAsk(message: String, onPositiveResponse: DialogInterface.OnClickListener?, onNegativeResponse: DialogInterface.OnClickListener? = null) {
         AlertDialog.Builder(activity)
             .setMessage(message)
