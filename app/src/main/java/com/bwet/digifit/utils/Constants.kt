@@ -11,8 +11,12 @@ const val USER_PREFERENCE_FILE_KEY = "UserPreference"
 const val PREFERENCE_KEY_NAME = "Name"
 const val PREFERENCE_KEY_WEIGHT = "Weight"
 const val PREFERENCE_KEY_HEIGHT = "Height"
+const val PREFERENCE_KEY_DAILY_GOAL = "dailyGoal"
 
 // notification constants
 const val FOREGROUND_NOTIFICATION_CHANNEL_ID = "PersistentNotificationID"
 const val STEP_COUNTER_NOTIFICATION_ID = 1010
+
+// Intent constants
+const val EDIT_PROFILE_INTENT_KEY = "Edit"
 
