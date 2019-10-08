@@ -1,5 +1,7 @@
 package com.bwet.digifit.utils
 
+import com.google.gson.Gson
+
 const val DEBUG_TAG = "DBG"
 
 const val PERMISSION_REQUEST_CODE_ACTIVITY_RECOGNITION = 1111
@@ -19,4 +21,7 @@ const val STEP_COUNTER_NOTIFICATION_ID = 1010
 
 // Intent constants
 const val EDIT_PROFILE_INTENT_KEY = "Edit"
+
+// object constancts
+val gson = Gson()
 
