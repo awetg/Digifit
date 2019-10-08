@@ -13,7 +13,7 @@ import androidx.core.app.NotificationManagerCompat
 import com.bwet.digifit.R
 import com.bwet.digifit.model.AppDB
 import com.bwet.digifit.model.Step
-import com.bwet.digifit.utils.FOREGROUND_NOTIFICATION_CHANNEL_ID
+import com.bwet.digifit.utils.STEP_COUNT_FOREGROUND_NOTIFICATION_CHANNEL_ID
 import com.bwet.digifit.utils.STEP_COUNTER_NOTIFICATION_ID
 import com.bwet.digifit.utils.User
 import com.bwet.digifit.view.MainActivity
@@ -66,7 +66,7 @@ abstract class StepDetectorService : SensorEventListener, BaseService() {
             PendingIntent.getActivity(this, 0 , it, 0)
         }
 
-        return NotificationCompat.Builder(this, FOREGROUND_NOTIFICATION_CHANNEL_ID)
+        return NotificationCompat.Builder(this, STEP_COUNT_FOREGROUND_NOTIFICATION_CHANNEL_ID)
             .setContentText(message)
             .setProgress(User.dailyStepGoal, steps, false)
             .setSmallIcon(R.drawable.ic_directions_walk_black_24dp)

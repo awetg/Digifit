@@ -4,14 +4,11 @@ package com.bwet.digifit.view
 
 
 import android.app.AlertDialog
-import android.content.Context
-import android.content.DialogInterface
-import android.content.Intent
+import android.content.*
 import android.content.pm.PackageManager
-import android.location.Location
-import android.location.LocationListener
-import android.location.LocationManager
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.os.SystemClock
 import android.provider.Settings
 import android.util.Log
@@ -20,47 +17,43 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.Observer
 import android.widget.*
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bwet.digifit.R
 import com.bwet.digifit.adapters.ActivityRecyclerAdapter
-import com.bwet.digifit.model.ActivitySession
 import com.bwet.digifit.utils.ACTIVITY_TRACKER_DETAIL_KEY
-import com.bwet.digifit.utils.DEBUG_TAG
 import com.bwet.digifit.utils.RuntimePermissionUtil
+import com.bwet.digifit.services.ActivityTrackerService
+import com.bwet.digifit.utils.*
 import com.bwet.digifit.viewModel.ActivitySessionViewModel
 import kotlinx.android.synthetic.main.fragment_activity_tracker.*
 import kotlinx.android.synthetic.main.fragment_activity_tracker.view.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlin.collections.ArrayList
 
-class ActivityTrackerFragment : Fragment(), LocationListener, AdapterView.OnItemSelectedListener{
+class ActivityTrackerFragment : Fragment(), AdapterView.OnItemSelectedListener{
 
     private lateinit var runtimePermissionUtil: RuntimePermissionUtil
-    private lateinit var locationManager: LocationManager
-    private var gpsProviderEnable: Boolean = false
+    private var sharedPreferenceUtil: SharedPreferenceUtil? = null
     private lateinit var activityRecyclerAdapter: ActivityRecyclerAdapter
     private lateinit var activitySessionViewModel: ActivitySessionViewModel
-
-    private var locationList: ArrayList<Location> = arrayListOf()
-    private var totalDistance = 0.0
     private var activitySelected : String = ""
 
-    private var sessionOn = false
     private var startTime = 0L
     private var pauseOffset = 0L
+    private var sessionOn = false
+    private var gpsProviderEnable: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
 
-        arguments?.let {}
-        locationManager = activity?.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        gpsProviderEnable = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+        super.onCreate(savedInstanceState)
         runtimePermissionUtil = RuntimePermissionUtil.getInstance(activity!!)
         activitySessionViewModel = ViewModelProviders.of(this).get(ActivitySessionViewModel::class.java)
+        activity?.let { sharedPreferenceUtil = SharedPreferenceUtil(it) }
+        val chronometerState = sharedPreferenceUtil?.getChronometerStae()
+        startTime = chronometerState?.startTime ?: 0L
+        pauseOffset = chronometerState?.pauseOffset ?: 0L
+        registerReceiver()
     }
 
     override fun onCreateView(
@@ -69,6 +62,11 @@ class ActivityTrackerFragment : Fragment(), LocationListener, AdapterView.OnItem
     ): View? {
 
         val view = inflater.inflate(R.layout.fragment_activity_tracker, container, false)
+
+        if (startTime > 0) {
+            view.chronometer.base = SystemClock.elapsedRealtime() - pauseOffset
+            view.chronometer.start()
+        }
 
         activity?.let {
             val activitiesSpinnerAdapter = ArrayAdapter.createFromResource(it, R.array.activities, android.R.layout.simple_spinner_item)
@@ -91,27 +89,36 @@ class ActivityTrackerFragment : Fragment(), LocationListener, AdapterView.OnItem
         activitySessionViewModel.getAllSessions().observe(this, Observer { activityRecyclerAdapter.purgeAdd(it.reversed()) })
 
         view.start_session_btn.setOnClickListener {
+
+            // if session is on pause button was clicked pause service and chronometer
              if (sessionOn) {
-                 chronometer.stop()
-                 pauseOffset = SystemClock.elapsedRealtime() - chronometer.base
+                 pauseChronometer()
+                 pauseSerivice()
                 start_session_btn?.setImageDrawable(resources.getDrawable(R.drawable.ic_play_arrow_black_24dp))
                 sessionOn = false
                  activity_stop_btn.visibility = View.VISIBLE
+
             } else {
+                 // else if play(start) button clicked start service and chronometer
                  if (runtimePermissionUtil.isPermissionAvailable(android.Manifest.permission.ACCESS_FINE_LOCATION))
                      runtimePermissionUtil.requestPermissions(arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION))
                  else {
-                     if (gpsProviderEnable) {
-                         requestLocationUpdates()
-                         activity_stop_btn.visibility = View.INVISIBLE
-                         start_session_btn?.setImageDrawable(resources.getDrawable(R.drawable.ic_pause_black_24dp))
-                         startTime = System.currentTimeMillis()
-                         chronometer.base = SystemClock.elapsedRealtime() - pauseOffset
-                         chronometer.start()
-                         sessionOn = true
-                     } else {
-                         showEnablProviderDialog()
-                     }
+                     ContextCompat.startForegroundService(activity?.applicationContext!!, Intent(activity, ActivityTrackerService::class.java))
+//                     registerReceiver()
+                     Handler(Looper.getMainLooper()).postDelayed(
+                         {
+                             if (gpsProviderEnable) {
+                                 startTime = System.currentTimeMillis()
+                                 startChronometer()
+                                 activity_stop_btn.visibility = View.INVISIBLE
+                                 start_session_btn?.setImageDrawable(resources.getDrawable(R.drawable.ic_pause_black_24dp))
+                                 sessionOn = true
+                             } else {
+                                 showEnablProviderDialog()
+                             }
+
+                         }, 40)
+
                  }
             }
 
@@ -119,62 +126,23 @@ class ActivityTrackerFragment : Fragment(), LocationListener, AdapterView.OnItem
 
 
         view.activity_stop_btn.setOnClickListener {
+
             val timeElapsed = SystemClock.elapsedRealtime() - chronometer.base
-            val endTime = startTime + timeElapsed
+
+            ContextCompat.startForegroundService(
+                activity?.applicationContext!!,
+                Intent(activity, ActivityTrackerService::class.java)
+                    .putExtra(ACTIVITY_SERVICE_INTENT_START_TIME, startTime)
+                    .putExtra(ACTIVITY_SERVICE_INTENT_ELAPSED_TIME, timeElapsed)
+                    .putExtra(ACTIVITY_SERVICE_INTENT_SELECTED_ACTIVITY, activitySelected)
+            )
             chronometer.base = SystemClock.elapsedRealtime()
             pauseOffset = 0L
-            GlobalScope.launch(Dispatchers.IO) {
-                activitySessionViewModel.insertActivitySession(
-                    ActivitySession(startTime, endTime, locationList, totalDistance, activitySelected)
-                )
-            }
-            locationList = arrayListOf()
+            startTime = 0L
             activity_stop_btn.visibility = View.INVISIBLE
         }
 
         return view
-    }
-
-    private fun requestLocationUpdates() {
-        locationManager.removeUpdates(this)
-        try {
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 500, 1.0f, this)
-
-//            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 500, 5.0f, this)
-
-        } catch (e: SecurityException) {
-            e.printStackTrace()
-            Log.d(DEBUG_TAG, "security exception ${e.message}")
-        }
-    }
-
-    private fun calculateDistance(): Double {
-        var distance = 0.0
-        locationList.reduce { current, next ->
-            distance += current.distanceTo(next)
-            next
-        }
-        return distance
-    }
-
-    override fun onLocationChanged(location: Location?) {
-        location?.let {
-            Toast.makeText(activity, "${location.latitude.toString()}",Toast.LENGTH_LONG).show()
-            locationList.add(it)
-            totalDistance += calculateDistance()
-        }
-    }
-
-    override fun onStatusChanged(p0: String?, p1: Int, p2: Bundle?) {
-            requestLocationUpdates()
-        }
-
-    override fun onProviderEnabled(provider: String?) {
-        if (provider == "gps") gpsProviderEnable = true
-    }
-
-    override fun onProviderDisabled(provider: String?) {
-        if (provider == "gps") gpsProviderEnable = false
     }
 
     override fun onItemSelected(parent: AdapterView<*>?, view: View?, pos: Int, id: Long) {
@@ -216,5 +184,47 @@ class ActivityTrackerFragment : Fragment(), LocationListener, AdapterView.OnItem
             .setMessage("GPS is disabled.Please enable GPS to continue. Do you want to go to setting to enable it?")
             .setPositiveButton("OK") {_ , _-> startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))}
             .show()
+    }
+
+    override fun onDestroy() {
+        sharedPreferenceUtil?.saveChronometerSate(ChronometerState(startTime, pauseOffset))
+        super.onDestroy()
+    }
+
+    private val activityTrackerBroadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (intent?.action == BROADCAST_ACTION_GPS_PROVIDER) {
+                gpsProviderEnable = intent.getBooleanExtra(GPS_PROVIDER_ENABLED, false)
+            }
+        }
+    }
+
+    private fun startChronometer() {
+        chronometer.base = SystemClock.elapsedRealtime() - pauseOffset
+        chronometer.start()
+    }
+
+    private fun pauseChronometer() {
+        chronometer.stop()
+        pauseOffset = SystemClock.elapsedRealtime() - chronometer.base
+    }
+
+    private fun pauseSerivice() {
+        ContextCompat.startForegroundService(
+            activity?.applicationContext!!,
+            Intent(activity, ActivityTrackerService::class.java)
+                .putExtra(ACTIVITY_SERVICE_INTENT_PAUSE_SESSION, false)
+        )
+    }
+
+    private fun registerReceiver() {
+        val intentFilter = IntentFilter()
+        intentFilter.addAction(BROADCAST_ACTION_GPS_PROVIDER)
+        activity!!.registerReceiver(activityTrackerBroadcastReceiver, intentFilter)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        activity?.unregisterReceiver(activityTrackerBroadcastReceiver)
     }
 }

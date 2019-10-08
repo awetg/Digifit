@@ -52,6 +52,7 @@
 
         <service android:name=".services.HardwareStepDetectorService" />
         <service android:name=".services.AccelerometerStepDetectorService" />
+        <service android:name=".services.ActivityTrackerService" />
 
         <receiver android:name=".receivers.BootReceiver">
             <intent-filter>
