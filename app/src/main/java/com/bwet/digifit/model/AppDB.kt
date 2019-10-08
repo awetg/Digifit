@@ -20,7 +20,7 @@ abstract class AppDB : RoomDatabase() {
         fun getInstance(context: Context): AppDB {
             if (instance == null) {
                 instance =
-                    Room.databaseBuilder(context.applicationContext, AppDB::class.java, "contact.db")
+                    Room.databaseBuilder(context.applicationContext, AppDB::class.java, "digifit.db")
                         .build()
             }
             return instance!!

@@ -21,6 +21,7 @@ const val STEP_COUNTER_NOTIFICATION_ID = 1010
 
 // Intent constants
 const val EDIT_PROFILE_INTENT_KEY = "Edit"
+const val ACTIVITY_TRACKER_DETAIL_KEY = "TrackerDetail"
 
 // object constancts
 val gson = Gson()

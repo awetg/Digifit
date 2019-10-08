@@ -26,6 +26,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.bwet.digifit.R
 import com.bwet.digifit.adapters.ActivityRecyclerAdapter
 import com.bwet.digifit.model.ActivitySession
+import com.bwet.digifit.utils.ACTIVITY_TRACKER_DETAIL_KEY
 import com.bwet.digifit.utils.DEBUG_TAG
 import com.bwet.digifit.utils.RuntimePermissionUtil
 import com.bwet.digifit.viewModel.ActivitySessionViewModel
@@ -45,7 +46,7 @@ class ActivityTrackerFragment : Fragment(), LocationListener, AdapterView.OnItem
     private lateinit var activitySessionViewModel: ActivitySessionViewModel
 
     private var locationList: ArrayList<Location> = arrayListOf()
-    private var distance = 0.0
+    private var totalDistance = 0.0
     private var activitySelected : String = ""
 
     private var sessionOn = false
@@ -54,6 +55,7 @@ class ActivityTrackerFragment : Fragment(), LocationListener, AdapterView.OnItem
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         arguments?.let {}
         locationManager = activity?.getSystemService(Context.LOCATION_SERVICE) as LocationManager
         gpsProviderEnable = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
@@ -70,12 +72,19 @@ class ActivityTrackerFragment : Fragment(), LocationListener, AdapterView.OnItem
 
         activity?.let {
             val activitiesSpinnerAdapter = ArrayAdapter.createFromResource(it, R.array.activities, android.R.layout.simple_spinner_item)
+
             activitiesSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
             view.activities_spinner.adapter = activitiesSpinnerAdapter
             view.activities_spinner.onItemSelectedListener = this
         }
 
         activityRecyclerAdapter = ActivityRecyclerAdapter(mutableListOf())
+        activityRecyclerAdapter.setClickListener {
+            val intent = Intent(activity, ActivityTrackerDetail::class.java)
+            intent.putExtra(ACTIVITY_TRACKER_DETAIL_KEY, it.id)
+            startActivity(intent)
+
+        }
         view.activity_recyclerView.adapter = activityRecyclerAdapter
         view.activity_recyclerView.layoutManager = LinearLayoutManager(activity)
 
@@ -116,7 +125,7 @@ class ActivityTrackerFragment : Fragment(), LocationListener, AdapterView.OnItem
             pauseOffset = 0L
             GlobalScope.launch(Dispatchers.IO) {
                 activitySessionViewModel.insertActivitySession(
-                    ActivitySession(startTime, endTime, locationList, distance, activitySelected)
+                    ActivitySession(startTime, endTime, locationList, totalDistance, activitySelected)
                 )
             }
             locationList = arrayListOf()
@@ -129,7 +138,7 @@ class ActivityTrackerFragment : Fragment(), LocationListener, AdapterView.OnItem
     private fun requestLocationUpdates() {
         locationManager.removeUpdates(this)
         try {
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 500, 5.0f, this)
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 500, 1.0f, this)
 
 //            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 500, 5.0f, this)
 
@@ -141,7 +150,6 @@ class ActivityTrackerFragment : Fragment(), LocationListener, AdapterView.OnItem
 
     private fun calculateDistance(): Double {
         var distance = 0.0
-
         locationList.reduce { current, next ->
             distance += current.distanceTo(next)
             next
@@ -151,8 +159,9 @@ class ActivityTrackerFragment : Fragment(), LocationListener, AdapterView.OnItem
 
     override fun onLocationChanged(location: Location?) {
         location?.let {
+            Toast.makeText(activity, "${location.latitude.toString()}",Toast.LENGTH_LONG).show()
             locationList.add(it)
-            distance = calculateDistance()
+            totalDistance += calculateDistance()
         }
     }
 

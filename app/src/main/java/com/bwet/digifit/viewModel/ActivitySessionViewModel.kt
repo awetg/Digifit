@@ -14,5 +14,5 @@ class ActivitySessionViewModel (application: Application): AndroidViewModel(appl
 
     fun getAllSessions(): LiveData<List<ActivitySession>> = db.activitySessionDao().getAllSessions()
 
-    fun getSessionById(id: Int): ActivitySession = db.activitySessionDao().getSessionById(id)
+    suspend fun getSessionById(id: Int): ActivitySession = db.activitySessionDao().getSessionById(id)
 }
