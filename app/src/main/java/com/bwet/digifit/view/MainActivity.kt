@@ -4,6 +4,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.graphics.BitmapFactory
 import android.os.Build
 import android.os.Bundle
@@ -13,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.bwet.digifit.R
 import com.bwet.digifit.adapters.SectionsPagerAdapter
 import com.bwet.digifit.services.HardwareStepDetectorService
@@ -61,9 +63,17 @@ class MainActivity : AppCompatActivity(){
             setting_icon.setOnClickListener { startActivity(Intent(this, SettingsActivity::class.java)) }
 
 
-            // create foreground service notification channel for android oreo or higher
+            // create foreground service for step count notification channel for android oreo or higher
             createNotificationChannel(
-                FOREGROUND_NOTIFICATION_CHANNEL_ID,
+                STEP_COUNT_FOREGROUND_NOTIFICATION_CHANNEL_ID,
+                getString(R.string.foregroundNotificationChannelName),
+                getString(R.string.foregroundNotificationChannelDescription),
+                NotificationManager.IMPORTANCE_LOW
+            )
+
+            // create foreground service for activity tracker notification channel for android oreo or higher
+            createNotificationChannel(
+                ACTIVITY_FOREGROUND_NOTIFICATION_CHANNEL_ID,
                 getString(R.string.foregroundNotificationChannelName),
                 getString(R.string.foregroundNotificationChannelDescription),
                 NotificationManager.IMPORTANCE_LOW

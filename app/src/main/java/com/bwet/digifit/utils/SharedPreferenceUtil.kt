@@ -50,13 +50,26 @@ class SharedPreferenceUtil (private val context: Context){
             .apply()
     }
 
-    fun saveInt(keyName: String, value: Int) {
-        context.getSharedPreferences(USER_PREFERENCE_FILE_KEY, Context.MODE_PRIVATE)
+    fun saveInt(prefName: String, keyName: String, value: Int) {
+        context.getSharedPreferences(prefName, Context.MODE_PRIVATE)
             .edit()
             .putInt(keyName, value)
             .apply()
         refreshUserData()
     }
 
+    fun saveChronometerSate(chronometerState: ChronometerState) {
+        context.getSharedPreferences(CHRONOMETER_PREFERENCE_FILE_KEY, Context.MODE_PRIVATE)
+            .edit()
+            .putLong(PREFERENCE_KEY_START_TIME, chronometerState.startTime)
+            .putLong(PREFERENCE_KEY_PAUSE_OFFSET, chronometerState.pauseOffset)
+            .apply()
+    }
 
+    fun getChronometerStae(): ChronometerState {
+        val sp = context.getSharedPreferences(CHRONOMETER_PREFERENCE_FILE_KEY, Context.MODE_PRIVATE)
+        val startTime = sp.getLong(PREFERENCE_KEY_START_TIME, 0L)
+        val pauseOffset = sp.getLong(PREFERENCE_KEY_PAUSE_OFFSET, 0L)
+        return ChronometerState(startTime, pauseOffset)
+    }
 }

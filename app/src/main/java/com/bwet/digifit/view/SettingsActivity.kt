@@ -80,7 +80,7 @@ class SettingsActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
             .setMessage(message)
             .setPositiveButton("OK") { _, _ ->
                 textView.text = view.dialog_number_picker.value.toString()
-                sharedPreferenceUtil.saveInt(keyName, view.dialog_number_picker.value)
+                sharedPreferenceUtil.saveInt(USER_PREFERENCE_FILE_KEY, keyName, view.dialog_number_picker.value)
             }
             .setNegativeButton("Cancel") { _, _ -> }
             .setCancelable(false)
