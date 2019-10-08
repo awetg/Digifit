@@ -19,7 +19,6 @@ import com.bwet.digifit.utils.StepGraphUtil
 import com.bwet.digifit.utils.TimeUtil
 import com.bwet.digifit.viewModel.StepViewModel
 import com.google.android.material.tabs.TabLayout
-import com.jjoe64.graphview.DefaultLabelFormatter
 import com.jjoe64.graphview.GridLabelRenderer
 import kotlinx.android.synthetic.main.fragment_pedometer.*
 import kotlinx.android.synthetic.main.fragment_pedometer.view.*

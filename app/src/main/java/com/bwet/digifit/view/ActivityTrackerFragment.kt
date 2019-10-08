@@ -3,72 +3,62 @@ package com.bwet.digifit.view
 
 
 
+import android.app.AlertDialog
 import android.content.Context
+import android.content.DialogInterface
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
-import android.os.Build
 import android.os.Bundle
-import android.os.Handler
+import android.os.SystemClock
+import android.provider.Settings
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.Observer
 import android.widget.*
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bwet.digifit.R
 import com.bwet.digifit.adapters.ActivityRecyclerAdapter
+import com.bwet.digifit.model.ActivitySession
+import com.bwet.digifit.utils.DEBUG_TAG
+import com.bwet.digifit.utils.RuntimePermissionUtil
+import com.bwet.digifit.viewModel.ActivitySessionViewModel
 import kotlinx.android.synthetic.main.fragment_activity_tracker.*
 import kotlinx.android.synthetic.main.fragment_activity_tracker.view.*
-import java.io.IOException
-
-data class Session(var duration:Long, var location:ArrayList<Location>, var distance:Long, var activity:String){}
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlin.collections.ArrayList
 
 class ActivityTrackerFragment : Fragment(), LocationListener, AdapterView.OnItemSelectedListener{
 
-    val TAG = "DBG"
-    private val path: ArrayList<Location> = arrayListOf()
-    var session: MutableList<Session> = mutableListOf()
-    val tracks = arrayOf("Running","Walking")
+    private lateinit var runtimePermissionUtil: RuntimePermissionUtil
+    private lateinit var locationManager: LocationManager
+    private var gpsProviderEnable: Boolean = false
+    private lateinit var activityRecyclerAdapter: ActivityRecyclerAdapter
+    private lateinit var activitySessionViewModel: ActivitySessionViewModel
 
-    lateinit var locationManager: LocationManager
-    lateinit var myAdapter: ArrayAdapter<String>
-    lateinit var listAdapter: ActivityRecyclerAdapter
+    private var locationList: ArrayList<Location> = arrayListOf()
+    private var distance = 0.0
+    private var activitySelected : String = ""
 
-    var sessionOn = false
-    var startTime = 0L
-    var timeInMiliSeconds = 0L
-    var timeSwapBuff = 0L
-    var timeElapsed = 0L
-    lateinit var customTimeHandler: Handler
+    private var sessionOn = false
+    private var startTime = 0L
+    private var pauseOffset = 0L
 
-    var distance_Travelled = 0L
-    var activitySelected : String = ""
-
-   private val updateTimerThread = object : Runnable {
-       override fun run() {
-            timeInMiliSeconds = System.currentTimeMillis() - startTime
-            timeElapsed = timeSwapBuff + timeInMiliSeconds
-            var secs = timeElapsed/1000
-            var mins = secs/60
-            var hrs = mins/60
-            secs %= 60
-            mins %= 60
-            clock.setText(
-                String.format("%02d", hrs) +  ":" +
-                        String.format("%02d", mins)+":" +
-                        String.format("%02d",secs)
-            )
-
-            customTimeHandler.postDelayed(this,1000)
-        }
-    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {}
         locationManager = activity?.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        gpsProviderEnable = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+        runtimePermissionUtil = RuntimePermissionUtil.getInstance(activity!!)
+        activitySessionViewModel = ViewModelProviders.of(this).get(ActivitySessionViewModel::class.java)
     }
 
     override fun onCreateView(
@@ -77,112 +67,82 @@ class ActivityTrackerFragment : Fragment(), LocationListener, AdapterView.OnItem
     ): View? {
 
         val view = inflater.inflate(R.layout.fragment_activity_tracker, container, false)
-        view.startSessionbtn?.setBackgroundResource(R.drawable.ic_play_circle_filled_black_24dp)
+
         activity?.let {
-            myAdapter = ArrayAdapter(it, android.R.layout.simple_spinner_item, tracks)
-            myAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-            view.spinner.adapter = myAdapter
-            view.spinner.onItemSelectedListener = this
+            val activitiesSpinnerAdapter = ArrayAdapter.createFromResource(it, R.array.activities, android.R.layout.simple_spinner_item)
+            activitiesSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            view.activities_spinner.adapter = activitiesSpinnerAdapter
+            view.activities_spinner.onItemSelectedListener = this
         }
 
-        customTimeHandler = Handler()
-        listAdapter = ActivityRecyclerAdapter(mutableListOf())
-        view.activity_recyclerView.adapter = listAdapter
+        activityRecyclerAdapter = ActivityRecyclerAdapter(mutableListOf())
+        view.activity_recyclerView.adapter = activityRecyclerAdapter
         view.activity_recyclerView.layoutManager = LinearLayoutManager(activity)
 
-        view.startSessionbtn.setOnClickListener {
-            Log.d("log","button pressed")
+        activitySessionViewModel.getAllSessions().observe(this, Observer { activityRecyclerAdapter.purgeAdd(it.reversed()) })
+
+        view.start_session_btn.setOnClickListener {
              if (sessionOn) {
-                startSessionbtn?.setBackgroundResource(R.drawable.ic_play_circle_filled_black_24dp)
-                timeSwapBuff += timeInMiliSeconds
-                 customTimeHandler.removeCallbacks(updateTimerThread)
+                 chronometer.stop()
+                 pauseOffset = SystemClock.elapsedRealtime() - chronometer.base
+                start_session_btn?.setImageDrawable(resources.getDrawable(R.drawable.ic_play_arrow_black_24dp))
                 sessionOn = false
-                 savebtn.visibility = View.VISIBLE
+                 activity_stop_btn.visibility = View.VISIBLE
             } else {
-                 checkPermission()
-                 listenToLocation()
-                 savebtn.visibility = View.INVISIBLE
-                startSessionbtn?.setBackgroundResource(R.drawable.ic_pause_circle_filled_black_24dp)
-                startTime = System.currentTimeMillis()
-                customTimeHandler.postDelayed(updateTimerThread,0)
-                sessionOn = true
+                 if (runtimePermissionUtil.isPermissionAvailable(android.Manifest.permission.ACCESS_FINE_LOCATION))
+                     runtimePermissionUtil.requestPermissions(arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION))
+                 else {
+                     if (gpsProviderEnable) {
+                         requestLocationUpdates()
+                         activity_stop_btn.visibility = View.INVISIBLE
+                         start_session_btn?.setImageDrawable(resources.getDrawable(R.drawable.ic_pause_black_24dp))
+                         startTime = System.currentTimeMillis()
+                         chronometer.base = SystemClock.elapsedRealtime() - pauseOffset
+                         chronometer.start()
+                         sessionOn = true
+                     } else {
+                         showEnablProviderDialog()
+                     }
+                 }
             }
 
         }
 
 
-        view.savebtn.setOnClickListener {
-            val s = Session(timeElapsed, path, distance_Travelled, activitySelected)
-           session.add(s)
-            listAdapter.addSession(s)
-            savebtn.visibility = View.INVISIBLE
-            clock.text = "00:00:00"
-            Log.d("log", "session saving in data class")
+        view.activity_stop_btn.setOnClickListener {
+            val timeElapsed = SystemClock.elapsedRealtime() - chronometer.base
+            val endTime = startTime + timeElapsed
+            chronometer.base = SystemClock.elapsedRealtime()
+            pauseOffset = 0L
+            GlobalScope.launch(Dispatchers.IO) {
+                activitySessionViewModel.insertActivitySession(
+                    ActivitySession(startTime, endTime, locationList, distance, activitySelected)
+                )
+            }
+            locationList = arrayListOf()
+            activity_stop_btn.visibility = View.INVISIBLE
         }
 
         return view
     }
 
-
-    fun listenToLocation(){
-            Log.d("log", "listening to location")
-        if ((activity?.checkSelfPermission(
-                android.Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED)) {
-            try {
-                locationManager.requestLocationUpdates(
-                    LocationManager.GPS_PROVIDER,
-                    500,
-                    5.0f,
-                    this
-                )
-
-                locationManager.requestLocationUpdates(
-                    LocationManager.NETWORK_PROVIDER,
-                    500,
-                    5.0f,
-                    this
-                )
-            } catch (e: IOException) {
-                Log.d("Error", "IO exception caught")
-            }
-        }
-
-    }
-    private fun checkPermission() {
-
-        Log.d("log", "checking permission")
-            if ((Build.VERSION.SDK_INT >= 23 && activity?.checkSelfPermission(
-                    android.Manifest.permission.ACCESS_FINE_LOCATION
-                ) != PackageManager.PERMISSION_GRANTED))
-            {
-                requestPermissions(
-                    arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION), 0
-                )
-            }
-        }
-
     private fun requestLocationUpdates() {
-            locationManager.removeUpdates(this)
-            try {
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 500, 5.0f, this)
+        locationManager.removeUpdates(this)
+        try {
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 500, 5.0f, this)
 
-                locationManager.requestLocationUpdates(
-                    LocationManager.NETWORK_PROVIDER,
-                    500,
-                    5.0f,
-                    this
-                )
+//            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 500, 5.0f, this)
 
-            } catch (e: SecurityException) {
-                Log.d(TAG, "security exception ${e.message}")
-            }
+        } catch (e: SecurityException) {
+            e.printStackTrace()
+            Log.d(DEBUG_TAG, "security exception ${e.message}")
         }
+    }
 
-    private fun getDistance(): Double {
-        var distance: Double = 0.0
+    private fun calculateDistance(): Double {
+        var distance = 0.0
 
-        path.reduce { current, next ->
+        locationList.reduce { current, next ->
             distance += current.distanceTo(next)
             next
         }
@@ -191,11 +151,8 @@ class ActivityTrackerFragment : Fragment(), LocationListener, AdapterView.OnItem
 
     override fun onLocationChanged(location: Location?) {
         location?.let {
-
-            path.add(location)
-            val dist = getDistance()
-                distance_Travelled = dist.toLong()
-
+            locationList.add(it)
+            distance = calculateDistance()
         }
     }
 
@@ -203,23 +160,52 @@ class ActivityTrackerFragment : Fragment(), LocationListener, AdapterView.OnItem
             requestLocationUpdates()
         }
 
-    override fun onProviderEnabled(p0: String?) {}
+    override fun onProviderEnabled(provider: String?) {
+        if (provider == "gps") gpsProviderEnable = true
+    }
 
-    override fun onProviderDisabled(p0: String?) {}
+    override fun onProviderDisabled(provider: String?) {
+        if (provider == "gps") gpsProviderEnable = false
+    }
 
     override fun onItemSelected(parent: AdapterView<*>?, view: View?, pos: Int, id: Long) {
         activitySelected = parent!!.getItemAtPosition(pos).toString()
-        Log.d("log", "$activitySelected")
     }
 
     override fun onNothingSelected(p0: AdapterView<*>?) {}
 
     companion object {
         @JvmStatic
-        fun newInstance() =
-            ActivityTrackerFragment().apply {
-                arguments = Bundle().apply {
+        fun newInstance() = ActivityTrackerFragment()
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        when (requestCode) {
+            RuntimePermissionUtil.PERMISSION_REQUEST_CODE -> {
+                if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+                    //permission granted
+                } else {
+                    activity?.let {
+                        val runtimePermissionUtil = RuntimePermissionUtil.getInstance(it)
+                        runtimePermissionUtil.showDialogAndAsk(
+                            getString(R.string.locationPermissionMessage),
+                            DialogInterface.OnClickListener{ _, _ -> runtimePermissionUtil.requestPermissions(arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION))}
+                        )
+                    }
                 }
             }
+        }
+    }
+
+    private fun showEnablProviderDialog() {
+        AlertDialog.Builder(activity)
+            .setTitle("GPS Disabled")
+            .setMessage("GPS is disabled.Please enable GPS to continue. Do you want to go to setting to enable it?")
+            .setPositiveButton("OK") {_ , _-> startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))}
+            .show()
     }
 }

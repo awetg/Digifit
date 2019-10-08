@@ -1,7 +1,9 @@
 package com.bwet.digifit.utils
 
+import android.util.Log
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 object TimeUtil {
 
@@ -56,6 +58,21 @@ object TimeUtil {
         val (start, _) = getFirstAndLastDaysOfThisMonth()
         val sdf = SimpleDateFormat("MMMM YYYY")
         return sdf.format(Date(start.timeInMillis))
+    }
+
+    fun getActivityTimeAndDuration(startTimeMills: Long, endTimeMills: Long): String {
+        val timeDiff = endTimeMills - startTimeMills
+        val diffInSeconds = TimeUnit.MILLISECONDS.toSeconds(timeDiff)
+        val diffInMinutes = TimeUnit.MILLISECONDS.toMinutes(timeDiff)
+        val diffInHours = TimeUnit.MILLISECONDS.toHours(timeDiff)
+        val duration: String =
+            if (diffInHours > 0)
+                "$diffInHours hr"
+            else if (diffInMinutes > 0 || diffInMinutes < 61)
+                "$diffInMinutes min"
+            else "$diffInSeconds sec"
+        val time = SimpleDateFormat("HH:mm MMM d").format(Date(startTimeMills))
+        return "$time - $duration"
     }
 
     private fun getClearCalendar(): Calendar {

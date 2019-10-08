@@ -11,10 +11,10 @@
         android:layout_height="wrap_content"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/activity_duration"/>
+        app:layout_constraintEnd_toStartOf="@+id/activity_time"/>
 
     <TextView
-        android:id="@+id/activity_duration"
+        android:id="@+id/activity_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="time"
@@ -30,7 +30,7 @@
         android:text="distance"
         app:layout_constraintBaseline_toBaselineOf="@id/activity_name"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toEndOf="@id/activity_duration"
+        app:layout_constraintStart_toEndOf="@id/activity_time"
         app:layout_constraintEnd_toEndOf="parent"
         />
 

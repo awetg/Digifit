@@ -17,9 +17,12 @@
     <string name="userName">John Doe</string>
     <string name="profilePicDescription">users profile picture</string>
 
+    <!--    Activity tacker string constants-->
+    <string name="distance">%1$s km</string>
+    <string name="clock">%1$02d:%2$02d:%3$02d</string>
     <string-array name="activities">
         <item>Running</item>
-        <item>Jogging</item>
+        <item>Walking</item>
     </string-array>
 
     <string name="activityPicker">Pick an Activity</string>
@@ -60,6 +63,7 @@
     <!--    Permission string constants-->
     <string name="defaultPermissionMessage">If you deny this permission the App may misbehave or may not function properly.</string>
     <string name="activity_recognition">This permission is required to count your steps. Please grant permission.</string>
+    <string name="locationPermissionMessage">This permission is required to track your activity. Please grant permission.</string>
 
     <!--    Graph view string constant-->
     <string name="day">Day</string>
