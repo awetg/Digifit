@@ -67,6 +67,6 @@
        android:layout_marginTop="16dp"
        app:layout_constraintEnd_toEndOf="parent"
        app:layout_constraintStart_toStartOf="parent"
-       app:layout_constraintTop_toBottomOf="@id/start_session_btn" />
+       app:layout_constraintTop_toBottomOf="@+id/activity_stop_btn" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

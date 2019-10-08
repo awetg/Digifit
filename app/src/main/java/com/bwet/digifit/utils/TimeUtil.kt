@@ -60,20 +60,27 @@ object TimeUtil {
         return sdf.format(Date(start.timeInMillis))
     }
 
-    fun getActivityTimeAndDuration(startTimeMills: Long, endTimeMills: Long): String {
+    fun getDate(startTimeMills: Long, endTimeMills: Long): String {
+       return SimpleDateFormat("MMM d").format(Date(startTimeMills))
+        //return date
+    }
+
+    fun getDuration(startTimeMills: Long, endTimeMills: Long): String {
+        Log.d(DEBUG_TAG,"$startTimeMills")
         val timeDiff = endTimeMills - startTimeMills
-        val diffInSeconds = TimeUnit.MILLISECONDS.toSeconds(timeDiff)
-        val diffInMinutes = TimeUnit.MILLISECONDS.toMinutes(timeDiff)
-        val diffInHours = TimeUnit.MILLISECONDS.toHours(timeDiff)
+        val diffInSeconds = (timeDiff/1000)%60//TimeUnit.MILLISECONDS.toSeconds(timeDiff)
+        val diffInMinutes = (timeDiff/60000)%60//TimeUnit.MILLISECONDS.toMinutes(timeDiff)
+        val diffInHours = (timeDiff/3600000)%60//TimeUnit.MILLISECONDS.toHours(timeDiff)
         val duration: String =
             if (diffInHours > 0)
-                "$diffInHours hr"
-            else if (diffInMinutes > 0 || diffInMinutes < 61)
-                "$diffInMinutes min"
-            else "$diffInSeconds sec"
-        val time = SimpleDateFormat("HH:mm MMM d").format(Date(startTimeMills))
-        return "$time - $duration"
+                "$diffInHours hrs " + "$diffInMinutes mins "+ "$diffInSeconds secs"
+            else if (diffInMinutes > 0 && diffInMinutes < 60)
+                "$diffInMinutes mins " + "$diffInSeconds secs "
+            else
+                "$diffInSeconds secs"
+        return duration
     }
+
 
     private fun getClearCalendar(): Calendar {
         val cal = Calendar.getInstance()

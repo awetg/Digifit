@@ -1,29 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.bwet.digifit">
-
     <!-- user permission -->
     <!-- <uses-permission android:name="android.permission.WAKE_LOCK" /> -->
-     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
-
-    <!-- use feature -->
-    <uses-feature  android:name="android.hardware.sensor.stepdetector" android:required="true" />
-
-
-    <!-- user permission -->
-    <!-- <uses-permission android:name="android.permission.WAKE_LOCK" /> -->
-    <!-- <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" /> -->
-    <!-- <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" /> -->
-    <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <!-- use feature -->
     <!-- <uses-feature android:name="android.hardware.sensor.stepcounter" android:required="true"/> -->
-    <uses-feature android:name="android.hardware.sensor.stepdetector" android:required="true" />
-    <uses-feature android:name="android.hardware.camera" android:required="true" />
+    <uses-feature
+        android:name="android.hardware.sensor.stepdetector"
+        android:required="true" />
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="true" />
 
     <application
         android:allowBackup="true"
@@ -32,9 +26,14 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".view.ActivityTrackerDetail">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".view.MainActivity" />
+        </activity>
         <activity
             android:name=".view.ProfileSetupActivity"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".view.BoardingActivity"
             android:theme="@style/AppTheme.NoActionBar" />
@@ -50,6 +49,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <service android:name=".services.HardwareStepDetectorService" />
         <service android:name=".services.AccelerometerStepDetectorService" />
 
@@ -60,16 +60,14 @@
         </receiver>
 
         <provider
-            android:authorities="com.bwet.digifit.fileprovider"
             android:name="androidx.core.content.FileProvider"
+            android:authorities="com.bwet.digifit.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/provider_path">
-            </meta-data>
+                android:resource="@xml/provider_path"></meta-data>
         </provider>
-
     </application>
 
 </manifest>

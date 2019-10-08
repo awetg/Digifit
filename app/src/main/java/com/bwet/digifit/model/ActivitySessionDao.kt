@@ -16,5 +16,5 @@ interface ActivitySessionDao {
     fun getAllSessions(): LiveData<List<ActivitySession>>
 
     @Query("SELECT * FROM activitysession WHERE id= :id")
-    fun getSessionById(id: Int): ActivitySession
+    suspend fun getSessionById(id: Int): ActivitySession
 }

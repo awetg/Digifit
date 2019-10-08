@@ -46,7 +46,8 @@ class ActivityRecyclerAdapter(private var sessions: List<ActivitySession>) : Rec
         val icon = if (activitySession.activityType == "Running") R.drawable.ic_directions_run_black_24dp else R.drawable.ic_directions_walk_black_24dp
         holder.itemView.activity_name.setBackgroundResource(icon)
         holder.itemView.activity_distance.text = "${String.format("%.2f", activitySession.distance)} m(s)"
-        holder.itemView.activity_time.text = TimeUtil.getActivityTimeAndDuration(activitySession.startTimeMills, activitySession.endTimeMills)
+        holder.itemView.activity_time.text = TimeUtil.getDuration(activitySession.startTimeMills, activitySession.endTimeMills)
+        holder.itemView.session_date.text = TimeUtil.getDate(activitySession.startTimeMills, activitySession.endTimeMills)
         holder.itemView.setOnClickListener{ clickListener(activitySession) }
     }
 
