@@ -11,7 +11,6 @@ import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
 import android.provider.Settings
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -30,6 +29,9 @@ import com.bwet.digifit.utils.*
 import com.bwet.digifit.viewModel.ActivitySessionViewModel
 import kotlinx.android.synthetic.main.fragment_activity_tracker.*
 import kotlinx.android.synthetic.main.fragment_activity_tracker.view.*
+import android.Manifest.permission.ACCESS_FINE_LOCATION
+import android.Manifest.permission.ACCESS_COARSE_LOCATION
+import android.util.Log
 
 class ActivityTrackerFragment : Fragment(), AdapterView.OnItemSelectedListener{
 
@@ -37,15 +39,29 @@ class ActivityTrackerFragment : Fragment(), AdapterView.OnItemSelectedListener{
     private var sharedPreferenceUtil: SharedPreferenceUtil? = null
     private lateinit var activityRecyclerAdapter: ActivityRecyclerAdapter
     private lateinit var activitySessionViewModel: ActivitySessionViewModel
+    private var gpsProviderEnable: Boolean = false
+
     private var activitySelected : String = ""
 
     private var startTime = 0L
     private var pauseOffset = 0L
+    private var elapsedTime = 0L
     private var sessionOn = false
-    private var gpsProviderEnable: Boolean = false
+
+    private val activityTrackerBroadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (intent?.action == BROADCAST_ACTION_GPS_PROVIDER) {
+                gpsProviderEnable = intent.getBooleanExtra(GPS_PROVIDER_ENABLED, false)
+            }
+        }
+    }
+
+    companion object {
+        @JvmStatic
+        fun newInstance() = ActivityTrackerFragment()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-
         super.onCreate(savedInstanceState)
         runtimePermissionUtil = RuntimePermissionUtil.getInstance(activity!!)
         activitySessionViewModel = ViewModelProviders.of(this).get(ActivitySessionViewModel::class.java)
@@ -53,7 +69,7 @@ class ActivityTrackerFragment : Fragment(), AdapterView.OnItemSelectedListener{
         val chronometerState = sharedPreferenceUtil?.getChronometerStae()
         startTime = chronometerState?.startTime ?: 0L
         pauseOffset = chronometerState?.pauseOffset ?: 0L
-        registerReceiver()
+        elapsedTime = chronometerState?.elapsedTime ?: 0L
     }
 
     override fun onCreateView(
@@ -64,86 +80,74 @@ class ActivityTrackerFragment : Fragment(), AdapterView.OnItemSelectedListener{
         val view = inflater.inflate(R.layout.fragment_activity_tracker, container, false)
 
         if (startTime > 0) {
-            view.chronometer.base = SystemClock.elapsedRealtime() - pauseOffset
-            view.chronometer.start()
+            if (pauseOffset == 0L) {
+                // resume tracking
+                elapsedTime = System.currentTimeMillis() - startTime
+                view.chronometer.base =  SystemClock.elapsedRealtime() - elapsedTime
+                view.chronometer.start()
+                sessionOn = true
+                view.start_session_btn.setImageDrawable(ContextCompat.getDrawable(activity!!, R.drawable.ic_pause_black_24dp))
+            } else {
+                // set paused tracking
+                view.chronometer.base = SystemClock.elapsedRealtime() - elapsedTime
+                view.chronometer.stop()
+                pauseOffset = SystemClock.elapsedRealtime() - view.chronometer.base
+                sessionOn = false
+                view.start_session_btn.setImageDrawable(ContextCompat.getDrawable(activity!!, R.drawable.ic_play_arrow_black_24dp))
+                view.start_session_btn.setImageDrawable(ContextCompat.getDrawable(activity!!, R.drawable.ic_play_arrow_black_24dp))
+                view.activity_stop_btn.visibility = View.VISIBLE
+            }
         }
 
+        // initialize activity type spinner
         activity?.let {
             val activitiesSpinnerAdapter = ArrayAdapter.createFromResource(it, R.array.activities, android.R.layout.simple_spinner_item)
-
             activitiesSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
             view.activities_spinner.adapter = activitiesSpinnerAdapter
             view.activities_spinner.onItemSelectedListener = this
         }
 
+        // initialize list of activity session recycler adapter
         activityRecyclerAdapter = ActivityRecyclerAdapter(mutableListOf())
+        view.activity_recyclerView.adapter = activityRecyclerAdapter
+        view.activity_recyclerView.layoutManager = LinearLayoutManager(activity)
         activityRecyclerAdapter.setClickListener {
             val intent = Intent(activity, ActivityTrackerDetail::class.java)
             intent.putExtra(ACTIVITY_TRACKER_DETAIL_KEY, it.id)
             startActivity(intent)
 
         }
-        view.activity_recyclerView.adapter = activityRecyclerAdapter
-        view.activity_recyclerView.layoutManager = LinearLayoutManager(activity)
 
         activitySessionViewModel.getAllSessions().observe(this, Observer { activityRecyclerAdapter.purgeAdd(it.reversed()) })
 
-        view.start_session_btn.setOnClickListener {
+        view.start_session_btn.setOnClickListener {if (sessionOn) pauseTracking() else startTracking()}
 
-            // if session is on pause button was clicked pause service and chronometer
-             if (sessionOn) {
-                 pauseChronometer()
-                 pauseSerivice()
-                start_session_btn?.setImageDrawable(resources.getDrawable(R.drawable.ic_play_arrow_black_24dp))
-                sessionOn = false
-                 activity_stop_btn.visibility = View.VISIBLE
-
-            } else {
-                 // else if play(start) button clicked start service and chronometer
-                 if (runtimePermissionUtil.isPermissionAvailable(android.Manifest.permission.ACCESS_FINE_LOCATION))
-                     runtimePermissionUtil.requestPermissions(arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION))
-                 else {
-                     ContextCompat.startForegroundService(activity?.applicationContext!!, Intent(activity, ActivityTrackerService::class.java))
-//                     registerReceiver()
-                     Handler(Looper.getMainLooper()).postDelayed(
-                         {
-                             if (gpsProviderEnable) {
-                                 startTime = System.currentTimeMillis()
-                                 startChronometer()
-                                 activity_stop_btn.visibility = View.INVISIBLE
-                                 start_session_btn?.setImageDrawable(resources.getDrawable(R.drawable.ic_pause_black_24dp))
-                                 sessionOn = true
-                             } else {
-                                 showEnablProviderDialog()
-                             }
-
-                         }, 40)
-
-                 }
-            }
-
-        }
-
-
-        view.activity_stop_btn.setOnClickListener {
-
-            val timeElapsed = SystemClock.elapsedRealtime() - chronometer.base
-
-            ContextCompat.startForegroundService(
-                activity?.applicationContext!!,
-                Intent(activity, ActivityTrackerService::class.java)
-                    .putExtra(ACTIVITY_SERVICE_INTENT_START_TIME, startTime)
-                    .putExtra(ACTIVITY_SERVICE_INTENT_ELAPSED_TIME, timeElapsed)
-                    .putExtra(ACTIVITY_SERVICE_INTENT_SELECTED_ACTIVITY, activitySelected)
-            )
-            chronometer.base = SystemClock.elapsedRealtime()
-            pauseOffset = 0L
-            startTime = 0L
-            activity_stop_btn.visibility = View.INVISIBLE
-        }
+        view.activity_stop_btn.setOnClickListener {saveActivitySession()}
 
         return view
     }
+
+    override fun onStart() {
+        registerReceiver()
+        super.onStart()
+    }
+
+    override fun onStop() {
+        activity?.unregisterReceiver(activityTrackerBroadcastReceiver)
+        super.onStop()
+    }
+
+    override fun onDestroyView() {
+        if (chronometer != null) {
+            if (sessionOn)
+                elapsedTime = SystemClock.elapsedRealtime() - chronometer.base
+            sharedPreferenceUtil?.saveChronometerSate(ChronometerState(startTime, pauseOffset, elapsedTime))
+        }
+        super.onDestroyView()
+    }
+
+
+    // ------------------- AdapterView.OnItemSelectedListener methods----------------------------------//
 
     override fun onItemSelected(parent: AdapterView<*>?, view: View?, pos: Int, id: Long) {
         activitySelected = parent!!.getItemAtPosition(pos).toString()
@@ -151,10 +155,80 @@ class ActivityTrackerFragment : Fragment(), AdapterView.OnItemSelectedListener{
 
     override fun onNothingSelected(p0: AdapterView<*>?) {}
 
-    companion object {
-        @JvmStatic
-        fun newInstance() = ActivityTrackerFragment()
+
+
+
+    // ------------------------------------ TRACKING METHODS -------------------------------//
+
+    private fun startChronometer() {
+        chronometer.base = SystemClock.elapsedRealtime() - pauseOffset
+        chronometer.start()
     }
+
+    private fun pauseChronometer() {
+        chronometer.stop()
+        pauseOffset = SystemClock.elapsedRealtime() - chronometer.base
+    }
+
+    private fun registerReceiver() {
+        val intentFilter = IntentFilter()
+        intentFilter.addAction(BROADCAST_ACTION_GPS_PROVIDER)
+        activity!!.registerReceiver(activityTrackerBroadcastReceiver, intentFilter)
+    }
+
+    private fun startTracking() {
+
+        if (runtimePermissionUtil.isPermissionAvailable(ACCESS_FINE_LOCATION) && runtimePermissionUtil.isPermissionAvailable(ACCESS_COARSE_LOCATION))
+            runtimePermissionUtil.requestPermissions(arrayOf(ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION))
+        else {
+            sharedPreferenceUtil?.saveBoolean(SETTING_PREFERENCE_FILE_KEY, STOP_SERVICE_FLAG_KEY, false)
+            sharedPreferenceUtil?.saveBoolean(SETTING_PREFERENCE_FILE_KEY, PUASE_SERVICE_FLAG_KEY, false)
+            ContextCompat.startForegroundService(activity?.applicationContext!!, Intent(activity, ActivityTrackerService::class.java))
+            Handler(Looper.getMainLooper()).postDelayed(
+                {
+                    if (gpsProviderEnable) {
+                        startTime = System.currentTimeMillis()
+                        startChronometer()
+                        activity_stop_btn.visibility = View.INVISIBLE
+                        start_session_btn.setImageDrawable(ContextCompat.getDrawable(activity!!, R.drawable.ic_pause_black_24dp))
+                        sessionOn = true
+                        elapsedTime = 0L
+                        pauseOffset = 0L
+                    } else {
+                        showEnableProviderDialog()
+                    }
+
+                }, 60)
+        }
+    }
+
+    private fun pauseTracking() {
+        pauseChronometer()
+        sharedPreferenceUtil?.saveBoolean(SETTING_PREFERENCE_FILE_KEY, PUASE_SERVICE_FLAG_KEY, true)
+        start_session_btn.setImageDrawable(ContextCompat.getDrawable(activity!!, R.drawable.ic_play_arrow_black_24dp))
+        activity_stop_btn.visibility = View.VISIBLE
+        sessionOn = false
+        elapsedTime = SystemClock.elapsedRealtime() - chronometer.base
+    }
+
+    private fun saveActivitySession() {
+        elapsedTime = SystemClock.elapsedRealtime() - chronometer.base
+        sharedPreferenceUtil?.let {
+            it.saveSessionSate(SessionState(startTime, elapsedTime, activitySelected))
+            it.saveBoolean(SETTING_PREFERENCE_FILE_KEY, STOP_SERVICE_FLAG_KEY, true)
+            it.saveBoolean(SETTING_PREFERENCE_FILE_KEY, PUASE_SERVICE_FLAG_KEY, false)
+        }
+        chronometer.base = SystemClock.elapsedRealtime()
+        pauseOffset = 0L
+        startTime = 0L
+        elapsedTime = 0L
+        sessionOn = false
+        activity_stop_btn.visibility = View.INVISIBLE
+    }
+
+
+
+    //---------------------------------PERMISSION METHODS--------------------------------//
 
     override fun onRequestPermissionsResult(
         requestCode: Int,
@@ -178,53 +252,11 @@ class ActivityTrackerFragment : Fragment(), AdapterView.OnItemSelectedListener{
         }
     }
 
-    private fun showEnablProviderDialog() {
+    private fun showEnableProviderDialog() {
         AlertDialog.Builder(activity)
             .setTitle("GPS Disabled")
             .setMessage("GPS is disabled.Please enable GPS to continue. Do you want to go to setting to enable it?")
             .setPositiveButton("OK") {_ , _-> startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))}
             .show()
-    }
-
-    override fun onDestroy() {
-        sharedPreferenceUtil?.saveChronometerSate(ChronometerState(startTime, pauseOffset))
-        super.onDestroy()
-    }
-
-    private val activityTrackerBroadcastReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            if (intent?.action == BROADCAST_ACTION_GPS_PROVIDER) {
-                gpsProviderEnable = intent.getBooleanExtra(GPS_PROVIDER_ENABLED, false)
-            }
-        }
-    }
-
-    private fun startChronometer() {
-        chronometer.base = SystemClock.elapsedRealtime() - pauseOffset
-        chronometer.start()
-    }
-
-    private fun pauseChronometer() {
-        chronometer.stop()
-        pauseOffset = SystemClock.elapsedRealtime() - chronometer.base
-    }
-
-    private fun pauseSerivice() {
-        ContextCompat.startForegroundService(
-            activity?.applicationContext!!,
-            Intent(activity, ActivityTrackerService::class.java)
-                .putExtra(ACTIVITY_SERVICE_INTENT_PAUSE_SESSION, false)
-        )
-    }
-
-    private fun registerReceiver() {
-        val intentFilter = IntentFilter()
-        intentFilter.addAction(BROADCAST_ACTION_GPS_PROVIDER)
-        activity!!.registerReceiver(activityTrackerBroadcastReceiver, intentFilter)
-    }
-
-    override fun onStop() {
-        super.onStop()
-        activity?.unregisterReceiver(activityTrackerBroadcastReceiver)
     }
 }
