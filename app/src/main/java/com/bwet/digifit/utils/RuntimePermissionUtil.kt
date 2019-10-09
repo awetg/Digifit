@@ -42,13 +42,14 @@ class RuntimePermissionUtil private constructor (private val activity: Activity)
     }
 
     // An activityType requesting permission can listen to onRequestPermissionsResult and take further action with this method if needed
-    fun showDialogAndAsk(message: String, onPositiveResponse: DialogInterface.OnClickListener?, onNegativeResponse: DialogInterface.OnClickListener? = null) {
-        AlertDialog.Builder(activity)
+    fun showDialogAndAsk(title: String, message: String, onPositiveResponse: DialogInterface.OnClickListener? = null, onNegativeResponse: DialogInterface.OnClickListener? = null) {
+        val alterDialog = AlertDialog.Builder(activity)
+            .setTitle(title)
             .setMessage(message)
             .setPositiveButton("OK", onPositiveResponse)
-            .setNegativeButton("No", onNegativeResponse)
             .setCancelable(false)
-            .show()
+        if (onNegativeResponse != null) alterDialog.setNegativeButton("No", onNegativeResponse)
+        alterDialog.show()
     }
 
     fun isPermissionAvailable(permission: String): Boolean = ActivityCompat.checkSelfPermission(activity, permission) != PackageManager.PERMISSION_GRANTED

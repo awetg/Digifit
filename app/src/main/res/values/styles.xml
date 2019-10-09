@@ -23,4 +23,9 @@
         <item name="colorControlNormal">@color/colorPrimary</item>
     </style>
 
+    <style name="TabLayoutTextStyle">
+        <item name="android:textSize">13sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
 </resources>

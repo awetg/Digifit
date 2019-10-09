@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="colorPrimary">#008577</color>
-    <color name="colorPrimaryDark">#00574B</color>
+    <color name="colorPrimaryDark">#008577</color>
     <color name="colorAccent">#D81B60</color>
     <color name="themeBackgroundColor">#FFFFFF</color>
 
@@ -22,5 +22,7 @@
     <color name="stopBgTint">#33FF0000</color>
     <color name="playBgTint">#33008577</color>
 
+    <color name="progressBg">#2F008577</color>
 
+    <color name="textColorSecondary">#61ffffff</color>
 </resources>

@@ -20,6 +20,9 @@ interface StepDao {
     @Query("SELECT COUNT(*) FROM step")
     suspend fun getTotalSteps(): Int
 
+    @Query("SELECT COUNT(*) FROM Step WHERE timeStampMills BETWEEN :startTimeMills AND :endTimeMills")
+    fun getStepCountBetweenTimeLive(startTimeMills: Long, endTimeMills: Long): LiveData<Int>
+
     // returns step between two time stamps (timestamp in mills)
     @Query("SELECT * FROM Step WHERE timeStampMills BETWEEN :startTimeMills AND :endTimeMills")
     suspend fun getStepBetweenTime(startTimeMills: Long, endTimeMills: Long): List<Step>
