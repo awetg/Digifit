@@ -29,6 +29,9 @@ import com.bwet.digifit.utils.*
 import com.bwet.digifit.viewModel.ActivitySessionViewModel
 import kotlinx.android.synthetic.main.fragment_activity_tracker.*
 import kotlinx.android.synthetic.main.fragment_activity_tracker.view.*
+import android.Manifest.permission.ACCESS_FINE_LOCATION
+import android.Manifest.permission.ACCESS_COARSE_LOCATION
+import android.util.Log
 
 class ActivityTrackerFragment : Fragment(), AdapterView.OnItemSelectedListener{
 
@@ -167,14 +170,6 @@ class ActivityTrackerFragment : Fragment(), AdapterView.OnItemSelectedListener{
         pauseOffset = SystemClock.elapsedRealtime() - chronometer.base
     }
 
-    private fun pauseService() {
-        ContextCompat.startForegroundService(
-            activity?.applicationContext!!,
-            Intent(activity, ActivityTrackerService::class.java)
-                .putExtra(ACTIVITY_SERVICE_INTENT_PAUSE_SESSION, false)
-        )
-    }
-
     private fun registerReceiver() {
         val intentFilter = IntentFilter()
         intentFilter.addAction(BROADCAST_ACTION_GPS_PROVIDER)
@@ -183,9 +178,11 @@ class ActivityTrackerFragment : Fragment(), AdapterView.OnItemSelectedListener{
 
     private fun startTracking() {
 
-        if (runtimePermissionUtil.isPermissionAvailable(android.Manifest.permission.ACCESS_FINE_LOCATION))
-            runtimePermissionUtil.requestPermissions(arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION))
+        if (runtimePermissionUtil.isPermissionAvailable(ACCESS_FINE_LOCATION) && runtimePermissionUtil.isPermissionAvailable(ACCESS_COARSE_LOCATION))
+            runtimePermissionUtil.requestPermissions(arrayOf(ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION))
         else {
+            sharedPreferenceUtil?.saveBoolean(SETTING_PREFERENCE_FILE_KEY, STOP_SERVICE_FLAG_KEY, false)
+            sharedPreferenceUtil?.saveBoolean(SETTING_PREFERENCE_FILE_KEY, PUASE_SERVICE_FLAG_KEY, false)
             ContextCompat.startForegroundService(activity?.applicationContext!!, Intent(activity, ActivityTrackerService::class.java))
             Handler(Looper.getMainLooper()).postDelayed(
                 {
@@ -201,13 +198,13 @@ class ActivityTrackerFragment : Fragment(), AdapterView.OnItemSelectedListener{
                         showEnableProviderDialog()
                     }
 
-                }, 40)
+                }, 60)
         }
     }
 
     private fun pauseTracking() {
         pauseChronometer()
-        pauseService()
+        sharedPreferenceUtil?.saveBoolean(SETTING_PREFERENCE_FILE_KEY, PUASE_SERVICE_FLAG_KEY, true)
         start_session_btn.setImageDrawable(ContextCompat.getDrawable(activity!!, R.drawable.ic_play_arrow_black_24dp))
         activity_stop_btn.visibility = View.VISIBLE
         sessionOn = false
@@ -216,13 +213,11 @@ class ActivityTrackerFragment : Fragment(), AdapterView.OnItemSelectedListener{
 
     private fun saveActivitySession() {
         elapsedTime = SystemClock.elapsedRealtime() - chronometer.base
-        ContextCompat.startForegroundService(
-            activity?.applicationContext!!,
-            Intent(activity, ActivityTrackerService::class.java)
-                .putExtra(ACTIVITY_SERVICE_INTENT_START_TIME, startTime)
-                .putExtra(ACTIVITY_SERVICE_INTENT_ELAPSED_TIME, elapsedTime)
-                .putExtra(ACTIVITY_SERVICE_INTENT_SELECTED_ACTIVITY, activitySelected)
-        )
+        sharedPreferenceUtil?.let {
+            it.saveSessionSate(SessionState(startTime, elapsedTime, activitySelected))
+            it.saveBoolean(SETTING_PREFERENCE_FILE_KEY, STOP_SERVICE_FLAG_KEY, true)
+            it.saveBoolean(SETTING_PREFERENCE_FILE_KEY, PUASE_SERVICE_FLAG_KEY, false)
+        }
         chronometer.base = SystemClock.elapsedRealtime()
         pauseOffset = 0L
         startTime = 0L

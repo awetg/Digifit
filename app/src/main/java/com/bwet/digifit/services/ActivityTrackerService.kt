@@ -5,11 +5,14 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
 import android.os.IBinder
+import android.util.Log
+import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import com.bwet.digifit.R
@@ -18,6 +21,8 @@ import com.bwet.digifit.model.AppDB
 import com.bwet.digifit.utils.*
 import com.bwet.digifit.view.MainActivity
 import kotlinx.coroutines.launch
+import java.util.*
+import kotlin.collections.ArrayList
 
 class ActivityTrackerService : BaseService(), LocationListener {
 
@@ -25,13 +30,33 @@ class ActivityTrackerService : BaseService(), LocationListener {
     private lateinit var locationManager: LocationManager
     private var gpsProviderEnable: Boolean = false
     private var locationList: ArrayList<Location> = arrayListOf()
-    private var distance = 0.0
     private var sessionOn = false
+    private lateinit var sharedPreferences: SharedPreferences
 
     override fun onCreate() {
         appDB = AppDB.getInstance(applicationContext)
         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
         gpsProviderEnable = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+        sharedPreferences = this.getSharedPreferences(SETTING_PREFERENCE_FILE_KEY, Context.MODE_PRIVATE)
+        sharedPreferences.booleanLiveData(STOP_SERVICE_FLAG_KEY, false).observeForever { stop ->
+            if (stop) {
+            val sessionState = SharedPreferenceUtil(this).getSessionState()
+            launch {
+                appDB.activitySessionDao()
+                    .insert(ActivitySession(sessionState.startTime, sessionState.startTime + sessionState.elapsedTime , locationList, calculateDistance(), sessionState.activityType))
+            }
+            stopSelf()
+            } else {
+                requestLocationUpdates()
+            }
+        }
+
+        sharedPreferences.booleanLiveData(PUASE_SERVICE_FLAG_KEY, false).observeForever { pause ->
+            if (pause) {
+                sessionOn = false
+                locationManager.removeUpdates(this)
+            }
+        }
         super.onCreate()
     }
 
@@ -42,29 +67,8 @@ class ActivityTrackerService : BaseService(), LocationListener {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+
         startForeground(ACTIVITY_SESSIONS_NOTIFICATION_ID, createNotification("Tracking activity"))
-
-        // if an intent was received it means that session should be saved to database and service must stop
-        if (intent != null) {
-            val pauseSession = intent.getBooleanExtra(ACTIVITY_SERVICE_INTENT_PAUSE_SESSION, false)
-
-            if (pauseSession) {
-                sessionOn = false
-                locationManager.removeUpdates(this)
-
-            } else {
-                val startTime = intent.getLongExtra(ACTIVITY_SERVICE_INTENT_START_TIME, -1L)
-                val elapsedTime = intent.getLongExtra(ACTIVITY_SERVICE_INTENT_ELAPSED_TIME, -1L)
-                val activityType = intent.getStringExtra(ACTIVITY_SERVICE_INTENT_SELECTED_ACTIVITY)
-                if (startTime > 0 && elapsedTime >= 0 && activityType != null) {
-                    launch {
-                        appDB.activitySessionDao()
-                            .insert(ActivitySession(startTime, startTime + elapsedTime, locationList, distance, activityType))
-                    }
-                    stopSelf()
-                }
-            }
-        }
 
         requestLocationUpdates()
 
@@ -93,10 +97,7 @@ class ActivityTrackerService : BaseService(), LocationListener {
     }
 
     override fun onLocationChanged(location: Location?) {
-        location?.let {
-            locationList.add(it)
-            distance += locationList.last().distanceTo(location)
-        }
+        location?.let {locationList.add(it) }
     }
 
     override fun onStatusChanged(p0: String?, p1: Int, p2: Bundle?) {
@@ -114,9 +115,9 @@ class ActivityTrackerService : BaseService(), LocationListener {
     private fun requestLocationUpdates() {
         locationManager.removeUpdates(this)
         try {
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 500, 5.0f, this)
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 5.0f, this)
 
-//            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 500, 5.0f, this)
+//            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 100, 5.0f, this)
 
         } catch (e: SecurityException) {
             e.printStackTrace()
@@ -128,5 +129,17 @@ class ActivityTrackerService : BaseService(), LocationListener {
         intent.action = BROADCAST_ACTION_GPS_PROVIDER
         intent.putExtra(GPS_PROVIDER_ENABLED, value)
         sendBroadcast(intent)
+    }
+
+    private fun calculateDistance(): Double {
+        var distance = 0.0
+
+        if (locationList.isNotEmpty()) {
+            locationList.reduce { current, next ->
+                distance += current.distanceTo(next)
+                next
+            }
+        }
+        return distance
     }
 }
