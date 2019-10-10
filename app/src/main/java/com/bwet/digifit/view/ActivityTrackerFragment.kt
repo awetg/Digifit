@@ -33,6 +33,7 @@ import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.Manifest.permission.ACCESS_COARSE_LOCATION
 import android.util.Log
 
+
 class ActivityTrackerFragment : Fragment(), AdapterView.OnItemSelectedListener{
 
     private lateinit var runtimePermissionUtil: RuntimePermissionUtil
@@ -258,5 +259,47 @@ class ActivityTrackerFragment : Fragment(), AdapterView.OnItemSelectedListener{
             .setMessage("GPS is disabled.Please enable GPS to continue. Do you want to go to setting to enable it?")
             .setPositiveButton("OK") {_ , _-> startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))}
             .show()
+    }
+
+    override fun onDestroy() {
+        sharedPreferenceUtil?.saveChronometerSate(ChronometerState(startTime, pauseOffset))
+        super.onDestroy()
+    }
+
+    private val activityTrackerBroadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (intent?.action == BROADCAST_ACTION_GPS_PROVIDER) {
+                gpsProviderEnable = intent.getBooleanExtra(GPS_PROVIDER_ENABLED, false)
+            }
+        }
+    }
+
+    private fun startChronometer() {
+        chronometer.base = SystemClock.elapsedRealtime() - pauseOffset
+        chronometer.start()
+    }
+
+    private fun pauseChronometer() {
+        chronometer.stop()
+        pauseOffset = SystemClock.elapsedRealtime() - chronometer.base
+    }
+
+    private fun pauseSerivice() {
+        ContextCompat.startForegroundService(
+            activity?.applicationContext!!,
+            Intent(activity, ActivityTrackerService::class.java)
+                .putExtra(ACTIVITY_SERVICE_INTENT_PAUSE_SESSION, false)
+        )
+    }
+
+    private fun registerReceiver() {
+        val intentFilter = IntentFilter()
+        intentFilter.addAction(BROADCAST_ACTION_GPS_PROVIDER)
+        activity!!.registerReceiver(activityTrackerBroadcastReceiver, intentFilter)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        activity?.unregisterReceiver(activityTrackerBroadcastReceiver)
     }
 }

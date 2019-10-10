@@ -3,11 +3,15 @@ package com.bwet.digifit.view
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.drawable.ColorDrawable
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.preference.PreferenceManager
 import android.se.omapi.Session
 import android.util.Log
+import android.widget.Toolbar
+import androidx.appcompat.app.ActionBar
+import androidx.core.content.getSystemService
 import androidx.lifecycle.ViewModelProviders
 import com.bwet.digifit.R
 import com.bwet.digifit.model.ActivitySession
@@ -15,6 +19,7 @@ import com.bwet.digifit.utils.ACTIVITY_TRACKER_DETAIL_KEY
 import com.bwet.digifit.utils.TimeUtil
 import com.bwet.digifit.viewModel.ActivitySessionViewModel
 import kotlinx.android.synthetic.main.activity_list_items.*
+import kotlinx.android.synthetic.main.activity_settings.*
 import kotlinx.android.synthetic.main.activity_tracker_detail.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -43,7 +48,17 @@ class ActivityTrackerDetail : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_tracker_detail)
 
-        actionBar?.setDisplayHomeAsUpEnabled(true)
+        /*actionBar?.setDisplayHomeAsUpEnabled(true)
+        val bar = supportActionBar
+        bar?.setBackgroundDrawable(ColorDrawable(Color.WHITE))
+        */
+
+        supportActionBar?.let {
+            it.title = "Tracker Details"
+            it.setBackgroundDrawable(ColorDrawable(Color.WHITE))
+            it.setDisplayHomeAsUpEnabled(true)
+            it.setDisplayShowHomeEnabled(true)
+        }
 
         val id = intent.getIntExtra(ACTIVITY_TRACKER_DETAIL_KEY,-1)
 

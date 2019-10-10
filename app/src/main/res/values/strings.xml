@@ -6,7 +6,7 @@
 
     <!--Viewpager tabs strings-->
     <string name="pedometer_tab">Pedometer</string>
-    <string name="tab_text_2">Tracker</string>
+    <string name="activityTracker_tab">Tracker</string>
     <string name="tab_text_3">Calories</string>
     <string name="tab_text_4">Heart Monitor</string>
     <string name="tab_text_5">Heart Monitor</string>
