@@ -151,6 +151,7 @@
                 android:layout_height="48dp"
                 android:layout_marginTop="16dp"
                 android:layout_marginEnd="16dp"
+                android:contentDescription="Setting icon"
                 android:padding="8dp"
                 app:srcCompat="@drawable/ic_settings_white_24dp" />
 
@@ -187,7 +188,7 @@
                     app:tabMode="auto"
                     app:tabPaddingEnd="8dp"
                     app:tabPaddingStart="8dp"
-                    app:tabSelectedTextColor="@color/colorPrimary"
+                    app:tabSelectedTextColor="@color/colorPrimaryText"
                     app:tabTextAppearance="@style/TabLayoutTextStyle" />
 
                 <androidx.viewpager.widget.ViewPager

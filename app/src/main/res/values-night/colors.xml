@@ -2,4 +2,5 @@
 <resources>
     <color name="themeBackgroundColor">#303030</color>
     <color name="activityIconColor">#FFFFFF</color>
+    <color name="colorPrimaryText">#00ab99</color>
 </resources>
