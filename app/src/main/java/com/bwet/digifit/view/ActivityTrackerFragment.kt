@@ -31,6 +31,7 @@ import com.bwet.digifit.viewModel.ActivitySessionViewModel
 import kotlinx.android.synthetic.main.fragment_activity_tracker.*
 import kotlinx.android.synthetic.main.fragment_activity_tracker.view.*
 
+
 class ActivityTrackerFragment : Fragment(), AdapterView.OnItemSelectedListener{
 
     private lateinit var runtimePermissionUtil: RuntimePermissionUtil
@@ -227,4 +228,5 @@ class ActivityTrackerFragment : Fragment(), AdapterView.OnItemSelectedListener{
         super.onStop()
         activity?.unregisterReceiver(activityTrackerBroadcastReceiver)
     }
+
 }

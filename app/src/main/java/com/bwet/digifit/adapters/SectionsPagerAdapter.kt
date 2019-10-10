@@ -11,7 +11,7 @@ import com.bwet.digifit.view.ActivityTrackerFragment
 
 private val TAB_TITLES = arrayOf(
     R.string.pedometer_tab,
-    R.string.tab_text_2,
+    R.string.activityTracker_tab,
     R.string.tab_text_3,
     R.string.tab_text_4
 
