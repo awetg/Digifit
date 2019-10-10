@@ -28,16 +28,24 @@ class StepGraphUtil (private val graph: GraphView, private val seriesColor: Int)
 
     }
 
-    // set the graph with today's data
+    // set the graph_card with today's data
     fun setDayGraph(stepCountList: List<StepCount>? = null) {
         setSeries(stepCountList ?: generateTodayFakeData())
         graph.gridLabelRenderer.numHorizontalLabels = 7
-        graph.gridLabelRenderer.labelFormatter = DefaultLabelFormatter()
+        graph.gridLabelRenderer.labelFormatter = object : DefaultLabelFormatter() {
+            override fun formatLabel(value: Double, isValueX: Boolean): String {
+                return if (isValueX) {
+                    if (value.toInt() % 4 == 0) value.toInt().toString() else ""
+                } else {
+                    super.formatLabel(value, isValueX)
+                }
+            }
+        }
         graph.viewport.setMinX(0.0)
         graph.viewport.setMaxX(24.0)
     }
 
-    // set the graph with this week's data
+    // set the graph_card with this week's data
     fun setWeekGraph(stepCountList: List<StepCount>? = null) {
         setSeries(stepCountList ?: generateWeekFakeData())
         graph.gridLabelRenderer.numHorizontalLabels = 7
@@ -55,7 +63,7 @@ class StepGraphUtil (private val graph: GraphView, private val seriesColor: Int)
         graph.viewport.setMaxX(6.0)
     }
 
-    // set the graph with this month's data
+    // set the graph_card with this month's data
     fun setMonthGraph(stepCountList: List<StepCount>? = null) {
         setSeries(stepCountList ?: generateMonthFakeData())
         graph.gridLabelRenderer.numHorizontalLabels = 5

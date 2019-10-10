@@ -6,23 +6,22 @@ import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
 import com.bwet.digifit.view.PedometerFragment
 import com.bwet.digifit.R
-import com.bwet.digifit.view.PlaceholderFragment
 import com.bwet.digifit.view.ActivityTrackerFragment
+import com.bwet.digifit.view.CaloriesFragment
+import com.bwet.digifit.view.DistanceFragment
 
 private val TAB_TITLES = arrayOf(
     R.string.pedometer_tab,
-    R.string.activityTracker_tab,
-    R.string.tab_text_3,
-    R.string.tab_text_4
-
-
+    R.string.tracker,
+    R.string.calories,
+    R.string.distanceTab
 )
 
 private val TAB_FRAGMENTS = arrayOf(
     PedometerFragment.newInstance(),
     ActivityTrackerFragment.newInstance(),
-    PlaceholderFragment.newInstance(3),
-    PlaceholderFragment.newInstance(4)
+    CaloriesFragment.newInstance(),
+    DistanceFragment.newInstance()
 )
 
 class SectionsPagerAdapter(private val context: Context, fm: FragmentManager) :

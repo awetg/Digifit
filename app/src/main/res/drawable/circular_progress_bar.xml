@@ -1,9 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
-<shape
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:useLevel="true"
-    android:innerRadiusRatio="2.3"
-    android:shape="ring"
-    android:thickness="12dp">
-    <solid android:color="@color/colorPrimary" />
-</shape>
+<!--<shape-->
+<!--    xmlns:android="http://schemas.android.com/apk/res/android"-->
+<!--    android:useLevel="true"-->
+<!--    android:innerRadiusRatio="2.3"-->
+<!--    android:shape="ring"-->
+<!--    android:thickness="12dp">-->
+<!--    <solid android:color="@color/colorPrimary" />-->
+<!--</shape>-->
+
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item android:id="@android:id/progress">
+        <shape
+            android:innerRadiusRatio="2.5"
+            android:thickness="8dp"
+            android:shape="ring"
+            android:thicknessRatio="25.0" >
+            <gradient
+                android:centerColor="@color/colorPrimary"
+                android:endColor="@color/colorPrimary"
+                android:startColor="@color/colorPrimary"
+                android:type="sweep" />
+        </shape>
+    </item>
+    <item android:id="@android:id/secondaryProgress">
+        <shape
+            android:innerRadiusRatio="2.5"
+            android:shape="ring"
+            android:thickness="8dp"
+            android:thicknessRatio="25.0" >
+            <gradient
+                android:centerColor="@color/progressBg"
+                android:endColor="@color/progressBg"
+                android:startColor="@color/progressBg"
+                android:type="sweep" />
+        </shape>
+    </item>
+</layer-list>

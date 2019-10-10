@@ -25,7 +25,10 @@ class BoardingActivity : AppCompatActivity() {
         boarding_viewpager.adapter = boardingPagerAdapter
         boarding_tablayout.setupWithViewPager(boarding_viewpager)
 
-        get_started_btn.setOnClickListener { startActivity(Intent(this, MainActivity::class.java)) }
+        get_started_btn.setOnClickListener {
+            startActivity(Intent(this, MainActivity::class.java))
+            finish()
+        }
 
         next_btn.setOnClickListener {
             if(boarding_viewpager.currentItem < boardingItems.size - 1) {

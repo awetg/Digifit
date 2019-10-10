@@ -1,6 +1,6 @@
 package com.bwet.digifit.utils
 
-object CalorieBurnedCalculator {
+object CalorieAndDistanceCalculator {
 
     private const val MET_WALKING_FACTOR = 3.5    // per min with slow pace, <3.5 Mph, walking the dog
     private const val MET_FAST_WALKING_FACTOR = 8.3 // per min with the speed of 5 Mph speed
@@ -51,4 +51,5 @@ object CalorieBurnedCalculator {
 
     fun calculateWalkingMETSForDuration(durationInHours: Int): Double = MET_WALKING_FACTOR * weight * durationInHours
 
+    fun calculateDistanceForSteps(steps: Int): Double = strideLength * steps * 0.8
 }

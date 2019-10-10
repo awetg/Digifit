@@ -3,7 +3,6 @@ package com.bwet.digifit.view
 
 
 
-import android.app.AlertDialog
 import android.content.*
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -32,7 +31,8 @@ import kotlinx.android.synthetic.main.fragment_activity_tracker.view.*
 import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.Manifest.permission.ACCESS_COARSE_LOCATION
 import android.util.Log
-
+import android.view.WindowManager
+import androidx.recyclerview.widget.DividerItemDecoration
 
 class ActivityTrackerFragment : Fragment(), AdapterView.OnItemSelectedListener{
 
@@ -86,6 +86,9 @@ class ActivityTrackerFragment : Fragment(), AdapterView.OnItemSelectedListener{
                 elapsedTime = System.currentTimeMillis() - startTime
                 view.chronometer.base =  SystemClock.elapsedRealtime() - elapsedTime
                 view.chronometer.start()
+                Log.d("DBG", "stop is false, pause is false")
+                sharedPreferenceUtil?.saveBoolean(SETTING_PREFERENCE_FILE_KEY, STOP_SERVICE_FLAG_KEY, false)
+                sharedPreferenceUtil?.saveBoolean(SETTING_PREFERENCE_FILE_KEY, PUASE_SERVICE_FLAG_KEY, false)
                 sessionOn = true
                 view.start_session_btn.setImageDrawable(ContextCompat.getDrawable(activity!!, R.drawable.ic_pause_black_24dp))
             } else {
@@ -97,6 +100,9 @@ class ActivityTrackerFragment : Fragment(), AdapterView.OnItemSelectedListener{
                 view.start_session_btn.setImageDrawable(ContextCompat.getDrawable(activity!!, R.drawable.ic_play_arrow_black_24dp))
                 view.start_session_btn.setImageDrawable(ContextCompat.getDrawable(activity!!, R.drawable.ic_play_arrow_black_24dp))
                 view.activity_stop_btn.visibility = View.VISIBLE
+                sharedPreferenceUtil?.saveBoolean(SETTING_PREFERENCE_FILE_KEY, STOP_SERVICE_FLAG_KEY, false)
+                sharedPreferenceUtil?.saveBoolean(SETTING_PREFERENCE_FILE_KEY, PUASE_SERVICE_FLAG_KEY, true)
+                Log.d("DBG", "stop is false, pause is true")
             }
         }
 
@@ -112,6 +118,7 @@ class ActivityTrackerFragment : Fragment(), AdapterView.OnItemSelectedListener{
         activityRecyclerAdapter = ActivityRecyclerAdapter(mutableListOf())
         view.activity_recyclerView.adapter = activityRecyclerAdapter
         view.activity_recyclerView.layoutManager = LinearLayoutManager(activity)
+        view.activity_recyclerView.addItemDecoration(DividerItemDecoration(activity, DividerItemDecoration.VERTICAL))
         activityRecyclerAdapter.setClickListener {
             val intent = Intent(activity, ActivityTrackerDetail::class.java)
             intent.putExtra(ACTIVITY_TRACKER_DETAIL_KEY, it.id)
@@ -182,12 +189,21 @@ class ActivityTrackerFragment : Fragment(), AdapterView.OnItemSelectedListener{
         if (runtimePermissionUtil.isPermissionAvailable(ACCESS_FINE_LOCATION) && runtimePermissionUtil.isPermissionAvailable(ACCESS_COARSE_LOCATION))
             runtimePermissionUtil.requestPermissions(arrayOf(ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION))
         else {
+            Log.d("DBG", "stop is false, pause is false")
             sharedPreferenceUtil?.saveBoolean(SETTING_PREFERENCE_FILE_KEY, STOP_SERVICE_FLAG_KEY, false)
             sharedPreferenceUtil?.saveBoolean(SETTING_PREFERENCE_FILE_KEY, PUASE_SERVICE_FLAG_KEY, false)
             ContextCompat.startForegroundService(activity?.applicationContext!!, Intent(activity, ActivityTrackerService::class.java))
             Handler(Looper.getMainLooper()).postDelayed(
                 {
                     if (gpsProviderEnable) {
+                        if (pauseOffset == 0L) {
+                            try {
+                                runtimePermissionUtil.showDialogAndAsk(
+                                    "",
+                                    getString(R.string.gpsLimitationMessage)
+                                )
+                            } catch (e: WindowManager.BadTokenException) {}
+                        }
                         startTime = System.currentTimeMillis()
                         startChronometer()
                         activity_stop_btn.visibility = View.INVISIBLE
@@ -196,7 +212,11 @@ class ActivityTrackerFragment : Fragment(), AdapterView.OnItemSelectedListener{
                         elapsedTime = 0L
                         pauseOffset = 0L
                     } else {
-                        showEnableProviderDialog()
+                        runtimePermissionUtil.showDialogAndAsk(
+                            getString(R.string.gpsDisabledTitle),
+                            getString(R.string.gpsDisabledMessag),
+                            DialogInterface.OnClickListener{_ , _-> startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))}
+                        )
                     }
 
                 }, 60)
@@ -205,7 +225,9 @@ class ActivityTrackerFragment : Fragment(), AdapterView.OnItemSelectedListener{
 
     private fun pauseTracking() {
         pauseChronometer()
+        Log.d("DBG", "stop is false, pause is true")
         sharedPreferenceUtil?.saveBoolean(SETTING_PREFERENCE_FILE_KEY, PUASE_SERVICE_FLAG_KEY, true)
+        sharedPreferenceUtil?.saveBoolean(SETTING_PREFERENCE_FILE_KEY, STOP_SERVICE_FLAG_KEY, false)
         start_session_btn.setImageDrawable(ContextCompat.getDrawable(activity!!, R.drawable.ic_play_arrow_black_24dp))
         activity_stop_btn.visibility = View.VISIBLE
         sessionOn = false
@@ -218,6 +240,8 @@ class ActivityTrackerFragment : Fragment(), AdapterView.OnItemSelectedListener{
             it.saveSessionSate(SessionState(startTime, elapsedTime, activitySelected))
             it.saveBoolean(SETTING_PREFERENCE_FILE_KEY, STOP_SERVICE_FLAG_KEY, true)
             it.saveBoolean(SETTING_PREFERENCE_FILE_KEY, PUASE_SERVICE_FLAG_KEY, false)
+            Log.d("DBG", "stop is true, pause is false")
+
         }
         chronometer.base = SystemClock.elapsedRealtime()
         pauseOffset = 0L
@@ -244,6 +268,7 @@ class ActivityTrackerFragment : Fragment(), AdapterView.OnItemSelectedListener{
                     activity?.let {
                         val runtimePermissionUtil = RuntimePermissionUtil.getInstance(it)
                         runtimePermissionUtil.showDialogAndAsk(
+                            "",
                             getString(R.string.locationPermissionMessage),
                             DialogInterface.OnClickListener{ _, _ -> runtimePermissionUtil.requestPermissions(arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION))}
                         )
@@ -251,55 +276,5 @@ class ActivityTrackerFragment : Fragment(), AdapterView.OnItemSelectedListener{
                 }
             }
         }
-    }
-
-    private fun showEnableProviderDialog() {
-        AlertDialog.Builder(activity)
-            .setTitle("GPS Disabled")
-            .setMessage("GPS is disabled.Please enable GPS to continue. Do you want to go to setting to enable it?")
-            .setPositiveButton("OK") {_ , _-> startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))}
-            .show()
-    }
-
-    override fun onDestroy() {
-        sharedPreferenceUtil?.saveChronometerSate(ChronometerState(startTime, pauseOffset))
-        super.onDestroy()
-    }
-
-    private val activityTrackerBroadcastReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            if (intent?.action == BROADCAST_ACTION_GPS_PROVIDER) {
-                gpsProviderEnable = intent.getBooleanExtra(GPS_PROVIDER_ENABLED, false)
-            }
-        }
-    }
-
-    private fun startChronometer() {
-        chronometer.base = SystemClock.elapsedRealtime() - pauseOffset
-        chronometer.start()
-    }
-
-    private fun pauseChronometer() {
-        chronometer.stop()
-        pauseOffset = SystemClock.elapsedRealtime() - chronometer.base
-    }
-
-    private fun pauseSerivice() {
-        ContextCompat.startForegroundService(
-            activity?.applicationContext!!,
-            Intent(activity, ActivityTrackerService::class.java)
-                .putExtra(ACTIVITY_SERVICE_INTENT_PAUSE_SESSION, false)
-        )
-    }
-
-    private fun registerReceiver() {
-        val intentFilter = IntentFilter()
-        intentFilter.addAction(BROADCAST_ACTION_GPS_PROVIDER)
-        activity!!.registerReceiver(activityTrackerBroadcastReceiver, intentFilter)
-    }
-
-    override fun onStop() {
-        super.onStop()
-        activity?.unregisterReceiver(activityTrackerBroadcastReceiver)
     }
 }

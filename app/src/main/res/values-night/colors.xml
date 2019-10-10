@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="themeBackgroundColor">#121212</color>
+    <color name="themeBackgroundColor">#303030</color>
     <color name="activityIconColor">#FFFFFF</color>
+    <color name="colorPrimaryText">#00ab99</color>
 </resources>

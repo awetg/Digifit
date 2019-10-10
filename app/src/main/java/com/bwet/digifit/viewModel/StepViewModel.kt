@@ -21,4 +21,6 @@ class StepViewModel(application: Application): AndroidViewModel(application) {
     suspend fun getStepCountByInterval(
         startTimeMills: Long, endTimeMills: Long, intervalSec: Long, intervalFormat: String
     ): List<StepCount> = db.stepDao().getStepBetweenTimeGroupedByInterval(startTimeMills, endTimeMills, intervalSec, intervalFormat)
+
+    fun getStepCountBetweenTimeLive(startTimeMills: Long, endTimeMills: Long): LiveData<Int> = db.stepDao().getStepCountBetweenTimeLive(startTimeMills, endTimeMills)
 }

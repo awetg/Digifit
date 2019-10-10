@@ -18,10 +18,10 @@ import androidx.core.content.ContextCompat
 import com.bwet.digifit.R
 import com.bwet.digifit.model.ActivitySession
 import com.bwet.digifit.model.AppDB
+import com.bwet.digifit.model.MyLocation
 import com.bwet.digifit.utils.*
 import com.bwet.digifit.view.MainActivity
 import kotlinx.coroutines.launch
-import java.util.*
 import kotlin.collections.ArrayList
 
 class ActivityTrackerService : BaseService(), LocationListener {
@@ -39,23 +39,18 @@ class ActivityTrackerService : BaseService(), LocationListener {
         gpsProviderEnable = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
         sharedPreferences = this.getSharedPreferences(SETTING_PREFERENCE_FILE_KEY, Context.MODE_PRIVATE)
         sharedPreferences.booleanLiveData(STOP_SERVICE_FLAG_KEY, false).observeForever { stop ->
+            Log.d("DBG", "stop $stop")
             if (stop) {
-            val sessionState = SharedPreferenceUtil(this).getSessionState()
-            launch {
-                appDB.activitySessionDao()
-                    .insert(ActivitySession(sessionState.startTime, sessionState.startTime + sessionState.elapsedTime , locationList, calculateDistance(), sessionState.activityType))
-            }
-            stopSelf()
+                saveSession()
+                stopSelf()
             } else {
                 requestLocationUpdates()
             }
         }
 
         sharedPreferences.booleanLiveData(PUASE_SERVICE_FLAG_KEY, false).observeForever { pause ->
-            if (pause) {
-                sessionOn = false
-                locationManager.removeUpdates(this)
-            }
+            Log.d("DBG", "pause $pause")
+            if (pause) pauseSession()
         }
         super.onCreate()
     }
@@ -97,6 +92,7 @@ class ActivityTrackerService : BaseService(), LocationListener {
     }
 
     override fun onLocationChanged(location: Location?) {
+        Toast.makeText(this, "onupdate provider:${location?.provider} lat: ${location?.latitude}", Toast.LENGTH_SHORT).show()
         location?.let {locationList.add(it) }
     }
 
@@ -141,5 +137,21 @@ class ActivityTrackerService : BaseService(), LocationListener {
             }
         }
         return distance
+    }
+
+    private fun saveSession() {
+        val sessionState = SharedPreferenceUtil(this).getSessionState()
+        launch {
+            locationList.forEach {
+            }
+            val myLocationList = locationList.map { MyLocation(it.latitude, it.longitude, it.altitude, it.speed) }
+            appDB.activitySessionDao()
+                .insert(ActivitySession(sessionState.startTime, sessionState.startTime + sessionState.elapsedTime , myLocationList.toMutableList(), calculateDistance(), sessionState.activityType))
+        }
+    }
+
+    private fun pauseSession() {
+        sessionOn = false
+        locationManager.removeUpdates(this)
     }
 }

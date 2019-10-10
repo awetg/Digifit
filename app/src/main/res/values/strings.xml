@@ -3,13 +3,17 @@
 
     <!--   step counter strings -->
     <string name="step_count_initial_value">0</string>
+    <string name="step">steps</string>
+    <string name="txtDailyGoal">of your daily goal</string>
+    <string name="defaultStepPercent">50%</string>
+    <string name="stepPercent">%1$.0d%</string>
 
     <!--Viewpager tabs strings-->
-    <string name="pedometer_tab">Pedometer</string>
-    <string name="activityTracker_tab">Tracker</string>
-    <string name="tab_text_3">Calories</string>
-    <string name="tab_text_4">Heart Monitor</string>
-    <string name="tab_text_5">Heart Monitor</string>
+
+    <string name="pedometer_tab">PEDOMETER</string>
+    <string name="tracker">TRACKER</string>
+    <string name="calories">CALORIES</string>
+    <string name="distanceTab">DISTANCE</string>
 
     <string name="distanceTravelled">100km</string>
     <string name="caloriesBurned">10,000 kCal</string>
@@ -28,6 +32,9 @@
     <string name="startTime">Start Time</string>
     <string name="duration">Duration</string>
     <string name="showDistance">Distance</string>
+    <string name="gpsDisabledTitle">GPS is Disabled</string>
+    <string name="gpsDisabledMessag">GPS is disabled.Please enable GPS to continue. Do you want to go to setting to enable it?</string>
+    <string name="gpsLimitationMessage">The App uses GPS intead of network to track activity for better accuracy. Make sure you are outside when using this feature.</string>
 
     <string name="activityPicker">Pick an Activity</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
@@ -73,5 +80,12 @@
     <string name="day">Day</string>
     <string name="week">Week</string>
     <string name="month">Month</string>
+
+    <!--    Daily count string constants-->
+    <string name="txtCaloriesBurned">Calories burned today</string>
+    <string name="txtDistanceWalked">Distance walked today</string>
+    <string name="calorieUnit">cal</string>
+    <string name="DistanceUnit">m</string>
+    <string name="defaultCountValue">0</string>
 
 </resources>

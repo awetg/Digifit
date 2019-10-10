@@ -57,6 +57,8 @@ class MainActivity : AppCompatActivity(){
             stepViewModel = ViewModelProviders.of(this).get(StepViewModel::class.java)
             stepViewModel.getTotalStepsLive().observe(this, Observer { step_count.text = it.toString() })
 
+            user_name.text = User.name
+
             val bitmap = BitmapFactory.decodeFile(FileUtil.getOrCreateProfileImageFile(this, "image/jpeg").path)
             main_user_image.setImageBitmap(bitmap ?: BitmapFactory.decodeResource(resources, R.drawable.ic_add_a_photo_themed_24dp))
 

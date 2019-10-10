@@ -1,18 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-
     xmlns:tools="http://schemas.android.com/tools"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/constraintLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".view.PlaceholderFragment">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".view.CaloriesFragment">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:id="@+id/section_label"/>
+        app:layout_constraintTop_toTopOf="parent">
+
+        <include layout="@layout/daily_count_layout"/>
+
+    </ScrollView>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
