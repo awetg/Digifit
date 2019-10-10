@@ -30,6 +30,7 @@ import kotlinx.android.synthetic.main.fragment_activity_tracker.*
 import kotlinx.android.synthetic.main.fragment_activity_tracker.view.*
 import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.Manifest.permission.ACCESS_COARSE_LOCATION
+import android.util.Log
 import android.view.WindowManager
 import androidx.recyclerview.widget.DividerItemDecoration
 
@@ -85,6 +86,7 @@ class ActivityTrackerFragment : Fragment(), AdapterView.OnItemSelectedListener{
                 elapsedTime = System.currentTimeMillis() - startTime
                 view.chronometer.base =  SystemClock.elapsedRealtime() - elapsedTime
                 view.chronometer.start()
+                Log.d("DBG", "stop is false, pause is false")
                 sharedPreferenceUtil?.saveBoolean(SETTING_PREFERENCE_FILE_KEY, STOP_SERVICE_FLAG_KEY, false)
                 sharedPreferenceUtil?.saveBoolean(SETTING_PREFERENCE_FILE_KEY, PUASE_SERVICE_FLAG_KEY, false)
                 sessionOn = true
@@ -100,6 +102,7 @@ class ActivityTrackerFragment : Fragment(), AdapterView.OnItemSelectedListener{
                 view.activity_stop_btn.visibility = View.VISIBLE
                 sharedPreferenceUtil?.saveBoolean(SETTING_PREFERENCE_FILE_KEY, STOP_SERVICE_FLAG_KEY, false)
                 sharedPreferenceUtil?.saveBoolean(SETTING_PREFERENCE_FILE_KEY, PUASE_SERVICE_FLAG_KEY, true)
+                Log.d("DBG", "stop is false, pause is true")
             }
         }
 
@@ -186,6 +189,7 @@ class ActivityTrackerFragment : Fragment(), AdapterView.OnItemSelectedListener{
         if (runtimePermissionUtil.isPermissionAvailable(ACCESS_FINE_LOCATION) && runtimePermissionUtil.isPermissionAvailable(ACCESS_COARSE_LOCATION))
             runtimePermissionUtil.requestPermissions(arrayOf(ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION))
         else {
+            Log.d("DBG", "stop is false, pause is false")
             sharedPreferenceUtil?.saveBoolean(SETTING_PREFERENCE_FILE_KEY, STOP_SERVICE_FLAG_KEY, false)
             sharedPreferenceUtil?.saveBoolean(SETTING_PREFERENCE_FILE_KEY, PUASE_SERVICE_FLAG_KEY, false)
             ContextCompat.startForegroundService(activity?.applicationContext!!, Intent(activity, ActivityTrackerService::class.java))
@@ -221,6 +225,7 @@ class ActivityTrackerFragment : Fragment(), AdapterView.OnItemSelectedListener{
 
     private fun pauseTracking() {
         pauseChronometer()
+        Log.d("DBG", "stop is false, pause is true")
         sharedPreferenceUtil?.saveBoolean(SETTING_PREFERENCE_FILE_KEY, PUASE_SERVICE_FLAG_KEY, true)
         sharedPreferenceUtil?.saveBoolean(SETTING_PREFERENCE_FILE_KEY, STOP_SERVICE_FLAG_KEY, false)
         start_session_btn.setImageDrawable(ContextCompat.getDrawable(activity!!, R.drawable.ic_play_arrow_black_24dp))
@@ -235,6 +240,8 @@ class ActivityTrackerFragment : Fragment(), AdapterView.OnItemSelectedListener{
             it.saveSessionSate(SessionState(startTime, elapsedTime, activitySelected))
             it.saveBoolean(SETTING_PREFERENCE_FILE_KEY, STOP_SERVICE_FLAG_KEY, true)
             it.saveBoolean(SETTING_PREFERENCE_FILE_KEY, PUASE_SERVICE_FLAG_KEY, false)
+            Log.d("DBG", "stop is true, pause is false")
+
         }
         chronometer.base = SystemClock.elapsedRealtime()
         pauseOffset = 0L

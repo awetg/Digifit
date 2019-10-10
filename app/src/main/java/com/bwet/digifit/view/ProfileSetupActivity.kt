@@ -55,7 +55,10 @@ class ProfileSetupActivity : AppCompatActivity() {
                     profile_height_txt_spinner.text.toString().toInt(),
                     profile_daily_goal_edittxt.text.toString().toInt()
                 )
-                if (EDITING_PROFILE) finish() else startActivity(Intent(this, BoardingActivity::class.java))
+                if (EDITING_PROFILE) finish() else {
+                    startActivity(Intent(this, BoardingActivity::class.java))
+                    finish()
+                }
 
             } else {
                 val (first, second) = if ( profile_name_edittxt.text.toString().isEmpty()) Pair("name", "") else Pair("daily goal", "Proposed daily goal is 10,000 steps a day.")
