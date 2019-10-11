@@ -92,7 +92,11 @@ class ActivityTrackerDetail : AppCompatActivity() {
 
         map.overlayManager.add(line)
         map.invalidate()
-        map.controller.setCenter(geoPoints?.first())
+        if (geoPoints?.size != 0) {
+            map.controller.setCenter(geoPoints?.first())
+        } else {
+            map.controller.setCenter(GeoPoint(60.1699, 24.9384))
+        }
         map.controller.setZoom(19.0)
 
 

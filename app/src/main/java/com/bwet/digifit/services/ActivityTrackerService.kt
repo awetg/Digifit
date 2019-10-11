@@ -3,9 +3,7 @@ package com.bwet.digifit.services
 import android.app.Notification
 import android.app.PendingIntent
 import android.app.Service
-import android.content.Context
-import android.content.Intent
-import android.content.SharedPreferences
+import android.content.*
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
@@ -31,27 +29,32 @@ class ActivityTrackerService : BaseService(), LocationListener {
     private var gpsProviderEnable: Boolean = false
     private var locationList: ArrayList<Location> = arrayListOf()
     private var sessionOn = false
-    private lateinit var sharedPreferences: SharedPreferences
+
+    private val serviceTrackerBroadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (intent?.action == BROADCAST_ACTION_STOP_PAUSE_SERVICE) {
+
+                val pause = intent.getBooleanExtra(INTENT_KEY_PAUSE_SERVICE, false)
+
+                if (pause) pauseSession()
+
+                val stop = intent.getBooleanExtra(INTENT_KEY_STOP_SERVICE, false)
+
+                if (stop) {
+                    saveSession()
+                    stopSelf()
+                } else {
+                    requestLocationUpdates()
+                }
+            }
+        }
+    }
 
     override fun onCreate() {
         appDB = AppDB.getInstance(applicationContext)
         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
         gpsProviderEnable = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
-        sharedPreferences = this.getSharedPreferences(SETTING_PREFERENCE_FILE_KEY, Context.MODE_PRIVATE)
-        sharedPreferences.booleanLiveData(STOP_SERVICE_FLAG_KEY, false).observeForever { stop ->
-            Log.d("DBG", "stop $stop")
-            if (stop) {
-                saveSession()
-                stopSelf()
-            } else {
-                requestLocationUpdates()
-            }
-        }
-
-        sharedPreferences.booleanLiveData(PUASE_SERVICE_FLAG_KEY, false).observeForever { pause ->
-            Log.d("DBG", "pause $pause")
-            if (pause) pauseSession()
-        }
+        registerReceiver()
         super.onCreate()
     }
 
@@ -92,7 +95,6 @@ class ActivityTrackerService : BaseService(), LocationListener {
     }
 
     override fun onLocationChanged(location: Location?) {
-        Toast.makeText(this, "onupdate provider:${location?.provider} lat: ${location?.latitude}", Toast.LENGTH_SHORT).show()
         location?.let {locationList.add(it) }
     }
 
@@ -153,5 +155,11 @@ class ActivityTrackerService : BaseService(), LocationListener {
     private fun pauseSession() {
         sessionOn = false
         locationManager.removeUpdates(this)
+    }
+
+    private fun registerReceiver() {
+        val intentFilter = IntentFilter()
+        intentFilter.addAction(BROADCAST_ACTION_STOP_PAUSE_SERVICE)
+        registerReceiver(serviceTrackerBroadcastReceiver, intentFilter)
     }
 }

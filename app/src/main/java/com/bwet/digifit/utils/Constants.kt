@@ -41,6 +41,11 @@ const val ACTIVITY_TRACKER_DETAIL_KEY = "TrackerDetail"
 val gson = Gson()
 
 
-const val BROADCAST_ACTION_GPS_PROVIDER = "com.bwet.digifit.view.ActivityTrackerFragment.broadcastgpsprovider"
+const val BROADCAST_ACTION_GPS_PROVIDER = "broadcastAvtionGpsEnabled"
+const val BROADCAST_ACTION_LOCATION_EMPTY = "broadcatsActionLocaionListEmpt"
 const val GPS_PROVIDER_ENABLED = "gpsEnabled"
+
+const val BROADCAST_ACTION_STOP_PAUSE_SERVICE = "stopAction"
+const val INTENT_KEY_STOP_SERVICE = "stopService"
+const val INTENT_KEY_PAUSE_SERVICE = "pauseService"
 
