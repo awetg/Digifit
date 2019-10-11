@@ -66,7 +66,7 @@ class ActivityTrackerFragment : Fragment(), AdapterView.OnItemSelectedListener{
         super.onCreate(savedInstanceState)
         runtimePermissionUtil = RuntimePermissionUtil.getInstance(activity!!)
         activitySessionViewModel = ViewModelProviders.of(this).get(ActivitySessionViewModel::class.java)
-        activity?.let { sharedPreferenceUtil = SharedPreferenceUtil(it) }
+        activity?.applicationContext?.let { sharedPreferenceUtil = SharedPreferenceUtil(it) }
         val chronometerState = sharedPreferenceUtil?.getChronometerStae()
         startTime = chronometerState?.startTime ?: 0L
         pauseOffset = chronometerState?.pauseOffset ?: 0L
@@ -86,9 +86,8 @@ class ActivityTrackerFragment : Fragment(), AdapterView.OnItemSelectedListener{
                 elapsedTime = System.currentTimeMillis() - startTime
                 view.chronometer.base =  SystemClock.elapsedRealtime() - elapsedTime
                 view.chronometer.start()
-                Log.d("DBG", "stop is false, pause is false")
-                sharedPreferenceUtil?.saveBoolean(SETTING_PREFERENCE_FILE_KEY, STOP_SERVICE_FLAG_KEY, false)
-                sharedPreferenceUtil?.saveBoolean(SETTING_PREFERENCE_FILE_KEY, PUASE_SERVICE_FLAG_KEY, false)
+                updateReceiver(INTENT_KEY_STOP_SERVICE, false)
+                updateReceiver(INTENT_KEY_PAUSE_SERVICE, false)
                 sessionOn = true
                 view.start_session_btn.setImageDrawable(ContextCompat.getDrawable(activity!!, R.drawable.ic_pause_black_24dp))
             } else {
@@ -97,12 +96,11 @@ class ActivityTrackerFragment : Fragment(), AdapterView.OnItemSelectedListener{
                 view.chronometer.stop()
                 pauseOffset = SystemClock.elapsedRealtime() - view.chronometer.base
                 sessionOn = false
-                view.start_session_btn.setImageDrawable(ContextCompat.getDrawable(activity!!, R.drawable.ic_play_arrow_black_24dp))
-                view.start_session_btn.setImageDrawable(ContextCompat.getDrawable(activity!!, R.drawable.ic_play_arrow_black_24dp))
                 view.activity_stop_btn.visibility = View.VISIBLE
                 sharedPreferenceUtil?.saveBoolean(SETTING_PREFERENCE_FILE_KEY, STOP_SERVICE_FLAG_KEY, false)
                 sharedPreferenceUtil?.saveBoolean(SETTING_PREFERENCE_FILE_KEY, PUASE_SERVICE_FLAG_KEY, true)
-                Log.d("DBG", "stop is false, pause is true")
+                updateReceiver(INTENT_KEY_STOP_SERVICE, false)
+                updateReceiver(INTENT_KEY_PAUSE_SERVICE, true)
             }
         }
 
@@ -181,6 +179,7 @@ class ActivityTrackerFragment : Fragment(), AdapterView.OnItemSelectedListener{
     private fun registerReceiver() {
         val intentFilter = IntentFilter()
         intentFilter.addAction(BROADCAST_ACTION_GPS_PROVIDER)
+        intentFilter.addAction(BROADCAST_ACTION_LOCATION_EMPTY)
         activity!!.registerReceiver(activityTrackerBroadcastReceiver, intentFilter)
     }
 
@@ -189,9 +188,8 @@ class ActivityTrackerFragment : Fragment(), AdapterView.OnItemSelectedListener{
         if (runtimePermissionUtil.isPermissionAvailable(ACCESS_FINE_LOCATION) && runtimePermissionUtil.isPermissionAvailable(ACCESS_COARSE_LOCATION))
             runtimePermissionUtil.requestPermissions(arrayOf(ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION))
         else {
-            Log.d("DBG", "stop is false, pause is false")
-            sharedPreferenceUtil?.saveBoolean(SETTING_PREFERENCE_FILE_KEY, STOP_SERVICE_FLAG_KEY, false)
-            sharedPreferenceUtil?.saveBoolean(SETTING_PREFERENCE_FILE_KEY, PUASE_SERVICE_FLAG_KEY, false)
+            updateReceiver(INTENT_KEY_STOP_SERVICE, false)
+            updateReceiver(INTENT_KEY_PAUSE_SERVICE, false)
             ContextCompat.startForegroundService(activity?.applicationContext!!, Intent(activity, ActivityTrackerService::class.java))
             Handler(Looper.getMainLooper()).postDelayed(
                 {
@@ -225,9 +223,8 @@ class ActivityTrackerFragment : Fragment(), AdapterView.OnItemSelectedListener{
 
     private fun pauseTracking() {
         pauseChronometer()
-        Log.d("DBG", "stop is false, pause is true")
-        sharedPreferenceUtil?.saveBoolean(SETTING_PREFERENCE_FILE_KEY, PUASE_SERVICE_FLAG_KEY, true)
-        sharedPreferenceUtil?.saveBoolean(SETTING_PREFERENCE_FILE_KEY, STOP_SERVICE_FLAG_KEY, false)
+        updateReceiver(INTENT_KEY_STOP_SERVICE, false)
+        updateReceiver(INTENT_KEY_PAUSE_SERVICE, true)
         start_session_btn.setImageDrawable(ContextCompat.getDrawable(activity!!, R.drawable.ic_play_arrow_black_24dp))
         activity_stop_btn.visibility = View.VISIBLE
         sessionOn = false
@@ -238,11 +235,10 @@ class ActivityTrackerFragment : Fragment(), AdapterView.OnItemSelectedListener{
         elapsedTime = SystemClock.elapsedRealtime() - chronometer.base
         sharedPreferenceUtil?.let {
             it.saveSessionSate(SessionState(startTime, elapsedTime, activitySelected))
-            it.saveBoolean(SETTING_PREFERENCE_FILE_KEY, STOP_SERVICE_FLAG_KEY, true)
-            it.saveBoolean(SETTING_PREFERENCE_FILE_KEY, PUASE_SERVICE_FLAG_KEY, false)
-            Log.d("DBG", "stop is true, pause is false")
 
         }
+        updateReceiver(INTENT_KEY_STOP_SERVICE, true)
+        updateReceiver(INTENT_KEY_PAUSE_SERVICE, false)
         chronometer.base = SystemClock.elapsedRealtime()
         pauseOffset = 0L
         startTime = 0L
@@ -276,5 +272,12 @@ class ActivityTrackerFragment : Fragment(), AdapterView.OnItemSelectedListener{
                 }
             }
         }
+    }
+
+    private fun updateReceiver(key: String, value: Boolean) {
+        val intent = Intent()
+        intent.action = BROADCAST_ACTION_STOP_PAUSE_SERVICE
+        intent.putExtra(key, value)
+        activity?.sendBroadcast(intent)
     }
 }
