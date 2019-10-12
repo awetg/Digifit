@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".view.ActivityTrackerFragment">
+
+   <com.google.android.material.card.MaterialCardView
+       app:cardCornerRadius="12dp"
+       android:layout_margin="16dp"
+       android:id="@+id/chronometer_card"
+       app:layout_constraintTop_toTopOf="parent"
+       app:layout_constraintStart_toStartOf="parent"
+       app:layout_constraintEnd_toEndOf="parent"
+       android:layout_width="match_parent"
+       android:layout_height="wrap_content">
+
+      <androidx.constraintlayout.widget.ConstraintLayout
+          app:layout_constraintTop_toTopOf="parent"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintEnd_toEndOf="parent"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content">
+
+         <Spinner
+             app:layout_constraintTop_toTopOf="parent"
+             app:layout_constraintStart_toStartOf="parent"
+             app:layout_constraintEnd_toEndOf="parent"
+             android:layout_width="wrap_content"
+             android:layout_height="48dp"
+             android:textAlignment="center"
+             android:dropDownWidth="wrap_content"
+             android:layout_marginTop="16dp"
+             android:autofillHints="@string/activityPicker"
+             android:id="@+id/activities_spinner"/>
+
+         <Chronometer
+             android:id="@+id/chronometer"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:layout_marginTop="16dp"
+             android:textSize="30sp"
+             app:layout_constraintEnd_toEndOf="parent"
+             app:layout_constraintStart_toStartOf="parent"
+             app:layout_constraintTop_toBottomOf="@id/activities_spinner" />
+
+         <ImageButton
+             android:layout_marginBottom="16dp"
+             android:id="@+id/start_session_btn"
+             android:layout_width="48dp"
+             android:layout_height="48dp"
+             android:layout_marginStart="32dp"
+             android:layout_marginTop="16dp"
+             android:background="@drawable/circular_button"
+             android:contentDescription="Play"
+             android:elevation="5dp"
+             android:padding="12dp"
+             android:src="@drawable/ic_play_arrow_black_24dp"
+             app:cornerRadius="25dp"
+             app:layout_constraintBottom_toBottomOf="parent"
+             app:layout_constraintEnd_toStartOf="@+id/activity_stop_btn"
+             app:layout_constraintStart_toStartOf="parent"
+             app:layout_constraintTop_toBottomOf="@id/chronometer" />
+
+         <ImageButton
+             android:contentDescription="Stop"
+             android:layout_marginBottom="16dp"
+             android:id="@+id/activity_stop_btn"
+             android:layout_width="48dp"
+             android:layout_height="48dp"
+             android:layout_marginStart="124dp"
+             android:layout_marginTop="16dp"
+             android:layout_marginEnd="32dp"
+             android:background="@drawable/circular_button"
+             android:backgroundTintMode="multiply"
+             android:elevation="5dp"
+             android:padding="12dp"
+             android:src="@drawable/ic_stop_black_24dp"
+             android:visibility="invisible"
+             app:layout_constraintBottom_toBottomOf="parent"
+             app:layout_constraintEnd_toEndOf="parent"
+             app:layout_constraintStart_toEndOf="@+id/start_session_btn"
+             app:layout_constraintTop_toBottomOf="@id/chronometer" />
+      </androidx.constraintlayout.widget.ConstraintLayout>
+
+   </com.google.android.material.card.MaterialCardView>
+
+
+   <com.google.android.material.card.MaterialCardView
+       app:cardCornerRadius="12dp"
+       app:layout_constraintStart_toStartOf="parent"
+       app:layout_constraintEnd_toEndOf="parent"
+       app:layout_constraintTop_toBottomOf="@+id/chronometer_card"
+       android:layout_margin="16dp"
+       android:layout_width="match_parent"
+       android:layout_height="wrap_content">
+
+      <androidx.recyclerview.widget.RecyclerView
+          android:id="@+id/activity_recyclerView"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"/>
+   </com.google.android.material.card.MaterialCardView>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

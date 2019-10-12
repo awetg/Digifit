@@ -1,5 +1,91 @@
 <resources>
     <string name="app_name">Digifit</string>
-    <string name="tab_text_1">Tab 1</string>
-    <string name="tab_text_2">Tab 2</string>
+
+    <!--   step counter strings -->
+    <string name="step_count_initial_value">0</string>
+    <string name="step">steps</string>
+    <string name="txtDailyGoal">of your daily goal</string>
+    <string name="defaultStepPercent">50%</string>
+    <string name="stepPercent">%1$.0d%</string>
+
+    <!--Viewpager tabs strings-->
+
+    <string name="pedometer_tab">PEDOMETER</string>
+    <string name="tracker">TRACKER</string>
+    <string name="calories">CALORIES</string>
+    <string name="distanceTab">DISTANCE</string>
+
+    <string name="distanceTravelled">100km</string>
+    <string name="caloriesBurned">10,000 kCal</string>
+    <string name="stepsCount">2000</string>
+    <string name="userName">John Doe</string>
+    <string name="profilePicDescription">users profile picture</string>
+
+    <!--    Activity tacker string constants-->
+    <string name="distance">%1$s km</string>
+    <string name="clock">%1$02d:%2$02d:%3$02d</string>
+    <string-array name="activities">
+        <item>Running</item>
+        <item>Walking</item>
+    </string-array>
+    <string name="activity">Activity</string>
+    <string name="startTime">Start Time</string>
+    <string name="duration">Duration</string>
+    <string name="showDistance">Distance</string>
+    <string name="gpsDisabledTitle">GPS is Disabled</string>
+    <string name="gpsDisabledMessag">GPS is disabled.Please enable GPS to continue. Do you want to go to setting to enable it?</string>
+    <string name="gpsLimitationMessage">The App uses GPS intead of network to track activity for better accuracy. Make sure you are outside when using this feature.</string>
+
+    <string name="activityPicker">Pick an Activity</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <!--    Settings page string constants-->
+    <string name="interfaceSection">Interface</string>
+    <string name="profileSection">Profile</string>
+    <string name="editAllProfile">Edit All ...</string>
+    <string name="theme">Theme</string>
+    <string name="defaultTheme">Light</string>
+    <string-array name="theme_settings">
+        <item>Dark</item>
+        <item>Light</item>
+        <item>Battery Mode</item>
+        <item>Follow System</item>
+    </string-array>
+
+    <!--    User boarding string constants  -->
+    <string name="profileSaveBtn">Save</string>
+    <string name="getStartedBtn">Get Started</string>
+    <string name="setupProfile">Setup Your Profile</string>
+    <string name="weightDefaultSelection">70</string>
+    <string name="heightDefaultSelection">170</string>
+    <string name="dailyGoalDefaultValue">10000</string>
+    <string name="weight">Weight</string>
+    <string name="height">Height</string>
+    <string name="nameEditTextHint">Name</string>
+    <string name="setupProfileDescription">The App will use this information to calculate calories burned on activities or steps.</string>
+    <string name="dailyGoal">Daily step goals</string>
+    <string name="emptyInputMessage">You must enter %1$s to continue. %2$s</string>
+
+    <!--    Notification string constants-->
+    <string name="foregroundNotificationChannelName">Step count channel</string>
+    <string name="foregroundNotificationChannelDescription">Display persistent notification</string>
+    <string name="notification_text_steps">%1$s of %2$s steps walked today.</string>
+
+    <!--    Permission string constants-->
+    <string name="defaultPermissionMessage">If you deny this permission the App may misbehave or may not function properly.</string>
+    <string name="activity_recognition">This permission is required to count your steps. Please grant permission.</string>
+    <string name="locationPermissionMessage">This permission is required to track your activity. Please grant permission.</string>
+
+    <!--    Graph view string constant-->
+    <string name="day">Day</string>
+    <string name="week">Week</string>
+    <string name="month">Month</string>
+
+    <!--    Daily count string constants-->
+    <string name="txtCaloriesBurned">Calories burned today</string>
+    <string name="txtDistanceWalked">Distance walked today</string>
+    <string name="calorieUnit">cal</string>
+    <string name="DistanceUnit">m</string>
+    <string name="defaultCountValue">0</string>
+
 </resources>

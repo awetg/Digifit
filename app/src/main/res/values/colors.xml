@@ -1,6 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="colorPrimary">#008577</color>
-    <color name="colorPrimaryDark">#00574B</color>
+    <color name="colorPrimaryDark">#008577</color>
     <color name="colorAccent">#D81B60</color>
+    <color name="themeBackgroundColor">#FFFFFF</color>
+    <color name="colorPrimaryText">#008577</color>
+
+    <!--    hard coded color for profile page text ( does not change with theme)
+        All text color and some icons will have this color in profile page-->
+    <color name="textColorProfilePage">#FFFFFF</color>
+
+<!--    settings AppbarLayout background color-->
+    <color name="settingsAppBarColor">#FFFFFF</color>
+
+    <!--    boarding indicator default color-->
+    <color name="boardingIndicatorDefaultColor">#dadada</color>
+    <color name="stopSign">#FF0000</color>
+
+    <!--    Icon colors-->
+    <color name="activityIconColor">#FF000000</color>
+
+    <color name="stopBgTint">#33FF0000</color>
+    <color name="playBgTint">#33008577</color>
+
+    <color name="progressBg">#2F008577</color>
+
+    <color name="textColorSecondary">#61ffffff</color>
 </resources>
