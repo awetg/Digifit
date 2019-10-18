@@ -5,6 +5,7 @@ import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
 import android.os.Build
 import android.os.Bundle
@@ -17,6 +18,7 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.bwet.digifit.R
 import com.bwet.digifit.adapters.SectionsPagerAdapter
+import com.bwet.digifit.services.AccelerometerStepDetectorService
 import com.bwet.digifit.services.HardwareStepDetectorService
 import com.bwet.digifit.utils.*
 import com.bwet.digifit.viewModel.StepViewModel
@@ -81,7 +83,13 @@ class MainActivity : AppCompatActivity(){
                 NotificationManager.IMPORTANCE_LOW
             )
 
-            ContextCompat.startForegroundService(applicationContext, Intent(this, HardwareStepDetectorService::class.java))
+            if (packageManager.hasSystemFeature(PackageManager.FEATURE_SENSOR_STEP_DETECTOR)) {
+
+                ContextCompat.startForegroundService(applicationContext, Intent(this, HardwareStepDetectorService::class.java))
+            } else {
+                ContextCompat.startForegroundService(applicationContext, Intent(this, AccelerometerStepDetectorService::class.java))
+            }
+
 
         } else {
             startActivity(Intent(this, ProfileSetupActivity::class.java))
